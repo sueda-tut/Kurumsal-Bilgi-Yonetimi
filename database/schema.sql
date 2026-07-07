@@ -25,10 +25,8 @@ CREATE TABLE kullanicilar
         PRIMARY KEY (kullanici_id),
 
     CONSTRAINT uq_kullanicilar_eposta
-        UNIQUE (eposta),
+        UNIQUE (eposta)
 
-    CONSTRAINT chk_kullanicilar_rol
-        CHECK (rol IN ('Yonetici', 'Personel', 'IK', 'Muhasebe'))
 );
 
 -- İndeksler
