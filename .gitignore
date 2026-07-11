@@ -1,0 +1,18 @@
+# Sanal ortam
+.venv/
+
+# Ortam değişkenleri
+.env
+
+# Python önbelleği
+__pycache__/
+*.pyc
+
+# VS Code
+.vscode/
+
+# Python cache
+.pytest_cache/
+
+# macOS
+.DS_Store
