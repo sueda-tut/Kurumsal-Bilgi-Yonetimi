@@ -1,686 +1,132 @@
+-- Kurumsal Bilgi Yönetimi tutarlı seed verileri
+-- Çalıştırma sırası: 2
 
--- Kullanıcı Seed Verileri
+-- Departman seed verilerini ekler
+INSERT INTO departmanlar (departman_id, departman_adi) VALUES
+(1, 'Bilgi Islem'), (2, 'Muhasebe'), (4, 'Insan Kaynaklari'), (5, 'Satin Alma');
 
+-- Kullanıcı seed verilerini ekler
 INSERT INTO kullanicilar
-(
-    ad_soyad,
-    eposta,
-    sifre_ozeti,
-    rol,
-    departman
-)
-VALUES
-(
-    'Sistem Yoneticisi',
-    'admin@kurumsal.com',
-    '$2b$12$admin_hash_ornegi',
-    'Yonetici',
-    'Bilgi Islem'
-),
-(
-    'Ahmet Yilmaz',
-    'ahmet.yilmaz@kurumsal.com',
-    '$2b$12$ahmet_hash_ornegi',
-    'Personel',
-    'Insan Kaynaklari'
-),
-(
-    'Ayse Demir',
-    'ayse.demir@kurumsal.com',
-    '$2b$12$ayse_hash_ornegi',
-    'Personel',
-    'Muhasebe'
-),
-(
-    'Mehmet Kaya',
-    'mehmet.kaya@kurumsal.com',
-    '$2b$12$mehmet_hash_ornegi',
-    'Personel',
-    'Bilgi Islem'
-),
-(
-    'Zeynep Celik',
-    'zeynep.celik@kurumsal.com',
-    '$2b$12$zeynep_hash_ornegi',
-    'Personel',
-    'Satin Alma'
-);
+(kullanici_id, ad_soyad, eposta, sifre_ozeti, rol, departman_id) VALUES
+(1, 'Murat Aydin', 'admin@kurumsal.com', '$2b$12$admin_hash_ornegi', 'Yonetici', 1),
+(2, 'Ahmet Yilmaz', 'ahmet.yilmaz@kurumsal.com', '$2b$12$ahmet_hash_ornegi', 'Personel', 4),
+(3, 'Ayse Demir', 'ayse.demir@kurumsal.com', '$2b$12$ayse_hash_ornegi', 'Personel', 2),
+(4, 'Mehmet Kaya', 'mehmet.kaya@kurumsal.com', '$2b$12$mehmet_hash_ornegi', 'Personel', 1),
+(5, 'Zeynep Celik', 'zeynep.celik@kurumsal.com', '$2b$12$zeynep_hash_ornegi', 'Personel', 5);
 
-ALTER TABLE kullanicilar
-DROP CONSTRAINT chk_kullanicilar_rol;
-
-ALTER TABLE kullanicilar
-ADD CONSTRAINT chk_kullanicilar_rol
-CHECK (rol IN ('Yonetici', 'Personel'));
-
--- Doküman Seed Verileri
-
+-- Doküman seed verilerini ekler
 INSERT INTO dokumanlar
-(
-    baslik,
-    dosya_adi,
-    dosya_turu,
-    yukleyen_kullanici_id,
-    yuklenme_tarihi,
-    departman,
-    surum_no,
-    dosya_yolu,
-    durum
-)
-VALUES
-(
-    'Personel El Kitabi',
-    'personel_el_kitabi.pdf',
-    'pdf',
-    2,
-    CURRENT_TIMESTAMP,
-    'IK',
-    1,
-    '/dokumanlar/ik/personel_el_kitabi.pdf',
-    'Aktif'
-),
-(
-    'Yillik Izin Yonetmeligi',
-    'yillik_izin_yonetmeligi.pdf',
-    'pdf',
-    2,
-    CURRENT_TIMESTAMP,
-    'IK',
-    1,
-    '/dokumanlar/ik/yillik_izin_yonetmeligi.pdf',
-    'Aktif'
-),
-(
-    'Muhasebe Surecleri',
-    'muhasebe_surecleri.pdf',
-    'pdf',
-    3,
-    CURRENT_TIMESTAMP,
-    'Muhasebe',
-    1,
-    '/dokumanlar/muhasebe/muhasebe_surecleri.pdf',
-    'Aktif'
-),
-(
-    'Fatura Onay Proseduru',
-    'fatura_onay_proseduru.pdf',
-    'pdf',
-    3,
-    CURRENT_TIMESTAMP,
-    'Muhasebe',
-    1,
-    '/dokumanlar/muhasebe/fatura_onay_proseduru.pdf',
-    'Aktif'
-),
-(
-    'Bilgi Guvenligi Politikasi',
-    'bilgi_guvenligi_politikasi.pdf',
-    'pdf',
-    4,
-    CURRENT_TIMESTAMP,
-    'Bilgi Islem',
-    1,
-    '/dokumanlar/bilgi_islem/bilgi_guvenligi_politikasi.pdf',
-    'Aktif'
-),
-(
-    'BT Kullanim Politikasi',
-    'bt_kullanim_politikasi.pdf',
-    'pdf',
-    4,
-    CURRENT_TIMESTAMP,
-    'Bilgi Islem',
-    1,
-    '/dokumanlar/bilgi_islem/bt_kullanim_politikasi.pdf',
-    'Aktif'
-),
-(
-    'Satin Alma Proseduru',
-    'satin_alma_proseduru.pdf',
-    'pdf',
-    5,
-    CURRENT_TIMESTAMP,
-    'Satin Alma',
-    1,
-    '/dokumanlar/satin_alma/satin_alma_proseduru.pdf',
-    'Isleniyor'
-),
-(
-    'Tedarikci Degerlendirme Rehberi',
-    'tedarikci_degerlendirme_rehberi.pdf',
-    'pdf',
-    5,
-    CURRENT_TIMESTAMP,
-    'Satin Alma',
-    1,
-    '/dokumanlar/satin_alma/tedarikci_degerlendirme_rehberi.pdf',
-    'Aktif'
-),
-(
-    'KVKK Politikasi',
-    'kvkk_politikasi.pdf',
-    'pdf',
-    1,
-    CURRENT_TIMESTAMP,
-    'Bilgi Islem',
-    1,
-    '/dokumanlar/bilgi_islem/kvkk_politikasi.pdf',
-    'Arsivlendi'
-),
-(
-    'Acil Durum Plani',
-    'acil_durum_plani.pdf',
-    'pdf',
-    1,
-    CURRENT_TIMESTAMP,
-    'Bilgi Islem',
-    1,
-    '/dokumanlar/bilgi_islem/acil_durum_plani.pdf',
-    'Arsivlendi'
-);
+(dokuman_id, baslik, dosya_adi, dosya_turu, yukleyen_kullanici_id, departman_id,
+ surum_no, dosya_yolu, durum, dosya_boyutu) VALUES
+(1, 'Personel El Kitabi', 'personel_el_kitabi.pdf', 'pdf', 2, 4, 1, '/dokumanlar/insan_kaynaklari/personel_el_kitabi.pdf', 'Aktif', 245760),
+(2, 'Yillik Izin Yonetmeligi', 'yillik_izin_yonetmeligi.pdf', 'pdf', 2, 4, 1, '/dokumanlar/insan_kaynaklari/yillik_izin_yonetmeligi.pdf', 'Aktif', 184320),
+(3, 'Muhasebe Surecleri', 'muhasebe_surecleri.pdf', 'pdf', 3, 2, 1, '/dokumanlar/muhasebe/muhasebe_surecleri.pdf', 'Aktif', 327680),
+(4, 'Fatura Onay Proseduru', 'fatura_onay_proseduru.pdf', 'pdf', 3, 2, 1, '/dokumanlar/muhasebe/fatura_onay_proseduru.pdf', 'Aktif', 163840),
+(5, 'Bilgi Guvenligi Politikasi', 'bilgi_guvenligi_politikasi.pdf', 'pdf', 4, 1, 1, '/dokumanlar/bilgi_islem/bilgi_guvenligi_politikasi.pdf', 'Aktif', 286720),
+(6, 'BT Kullanim Politikasi', 'bt_kullanim_politikasi.pdf', 'pdf', 4, 1, 1, '/dokumanlar/bilgi_islem/bt_kullanim_politikasi.pdf', 'Aktif', 204800),
+(7, 'Satin Alma Proseduru', 'satin_alma_proseduru.pdf', 'pdf', 5, 5, 1, '/dokumanlar/satin_alma/satin_alma_proseduru.pdf', 'Isleniyor', 225280),
+(8, 'Tedarikci Degerlendirme Rehberi', 'tedarikci_degerlendirme_rehberi.pdf', 'pdf', 5, 5, 1, '/dokumanlar/satin_alma/tedarikci_degerlendirme_rehberi.pdf', 'Aktif', 194560),
+(9, 'KVKK Politikasi', 'kvkk_politikasi.pdf', 'pdf', 1, 1, 1, '/dokumanlar/bilgi_islem/kvkk_politikasi.pdf', 'Arsiv', 266240),
+(10, 'Acil Durum Plani', 'acil_durum_plani.pdf', 'pdf', 1, 1, 1, '/dokumanlar/bilgi_islem/acil_durum_plani.pdf', 'Arsiv', 174080);
 
-TRUNCATE TABLE kullanicilar RESTART IDENTITY CASCADE;
-
--- Doküman Parçaları Seed Verileri
-
+-- Her doküman için dört metin parçası ekler; embeddingler backend tarafından üretilecektir
 INSERT INTO dokuman_parcalari
-(
-    dokuman_id,
-    parca_sirasi,
-    parca_metni,
-    sayfa_no,
-    token_sayisi,
-    embedding_id
-)
-VALUES
-(
-    1,
-    1,
-    'Şirketimize hoş geldiniz. Bu el kitabı çalışanların işe uyum sürecini kolaylaştırmak amacıyla hazırlanmıştır. Çalışma saatleri hafta içi 08:30 ile 17:30 arasındadır. Çalışanların mesai başlangıç ve bitiş saatlerine uyması beklenmektedir.',
-    1,
-    42,
-    'emb_doc1_chunk1'
-),
-(
-    1,
-    2,
-    'Çalışanlar yıllık izin, mazeret izni ve sağlık izni haklarından şirket politikaları doğrultusunda yararlanabilir. İzin talepleri şirketin izin yönetim sistemi üzerinden yöneticinin onayına sunulmalıdır.',
-    2,
-    35,
-    'emb_doc1_chunk2'
-),
-(
-    1,
-    3,
-    'Şirket kurallarına aykırı davranışlar disiplin süreci kapsamında değerlendirilir. Tüm çalışanların bilgi güvenliği kurallarına uyması, şirket ekipmanlarını yalnızca iş amaçlı kullanması ve kurum etik ilkelerine bağlı kalması beklenmektedir.',
-    3,
-    39,
-    'emb_doc1_chunk3'
-);
+(dokuman_id, parca_sirasi, parca_metni, sayfa_no, token_sayisi) VALUES
+(1,1,'Şirketimize hoş geldiniz. Normal çalışma saatleri hafta içi 08:30 ile 17:30 arasındadır.',1,52),
+(1,2,'Çalışanlar yıllık izin, mazeret izni ve sağlık izni haklarından yararlanabilir.',2,47),
+(1,3,'Çalışanların bilgi güvenliği ve kurum etik ilkelerine uygun hareket etmesi beklenir.',3,50),
+(1,4,'Kurum içi iletişimde saygılı ve profesyonel bir yaklaşım benimsenmelidir.',4,42),
+(2,1,'Çalışanlar hizmet sürelerine bağlı olarak yıllık ücretli izin hakkına sahiptir.',1,41),
+(2,2,'İzin talepleri en az bir hafta önceden oluşturulmalı ve yönetici tarafından onaylanmalıdır.',2,39),
+(2,3,'Resmî tatiller yıllık izin süresinden düşülmez.',3,37),
+(2,4,'İzin tarihleri departmanın iş yoğunluğu dikkate alınarak planlanır.',4,43),
+(3,1,'Muhasebe birimi tüm mali kayıtları eksiksiz ve zamanında sisteme işler.',1,36),
+(3,2,'Fatura kayıtları mevzuata uygun olarak muhasebe sistemine girilir.',2,35),
+(3,3,'Ay sonu kapanışından sonra finansal raporlar yönetime sunulur.',3,32),
+(3,4,'Muhasebe kayıtları düzenli olarak kontrol edilir ve hatalar düzeltilir.',4,43),
+(4,1,'Tedarikçilerden gelen faturalar ilgili departman tarafından kontrol edilir.',1,34),
+(4,2,'Fatura tutarları satın alma siparişiyle karşılaştırılır.',2,33),
+(4,3,'Onaylanan faturalar ödeme planına dahil edilir.',3,31),
+(4,4,'Eksik belgesi veya onayı bulunan faturalar ödeme sürecine alınmaz.',4,39),
+(5,1,'Tüm çalışanlar güçlü parola kullanmalı ve parolalarını paylaşmamalıdır.',1,38),
+(5,2,'Kurumsal verilere yalnızca yetkili kullanıcılar erişebilir.',2,37),
+(5,3,'Taşınabilir belleklerdeki kurumsal veriler şifrelenmelidir.',3,35),
+(5,4,'Bilgi güvenliği ihlalleri bilgi işlem birimine bildirilmelidir.',4,44),
+(6,1,'Şirket bilgisayarları yalnızca iş amaçlı kullanılmalıdır.',1,34),
+(6,2,'Kurumsal e-postalarda şüpheli bağlantılara tıklanmamalıdır.',2,36),
+(6,3,'İnternet kullanımı bilgi güvenliği politikalarına uygun olmalıdır.',3,35),
+(6,4,'Şirket cihazları gözetimsiz bırakıldığında ekran kilitlenmelidir.',4,37),
+(7,1,'Satın alma talepleri sistem üzerinden oluşturularak onaya gönderilir.',1,37),
+(7,2,'En az üç farklı tedarikçiden teklif alınır.',2,33),
+(7,3,'Onaylanan teklif için sipariş oluşturulur ve teslim süreci izlenir.',3,32),
+(7,4,'Teslim alınan ürünler sipariş bilgileriyle karşılaştırılır.',4,41),
+(8,1,'Tedarikçiler kalite, teslim süresi ve maliyete göre değerlendirilir.',1,34),
+(8,2,'Düşük performanslı tedarikçiler için iyileştirme planı hazırlanır.',2,37),
+(8,3,'Değerlendirme sonuçları yıllık raporlarda saklanır.',3,34),
+(8,4,'Başarılı tedarikçiler öncelikli tedarikçi olarak değerlendirilebilir.',4,41),
+(9,1,'Kişisel veriler yalnızca belirlenen amaçlar doğrultusunda işlenebilir.',1,40),
+(9,2,'Kişisel verilere yalnızca yetkili personel erişebilir.',2,38),
+(9,3,'Saklama süresi dolan kişisel veriler güvenli şekilde silinir.',3,39),
+(9,4,'Kişisel veri ihlalleri ilgili birimlere bildirilmelidir.',4,41),
+(10,1,'Yangında en yakın acil çıkış kullanılarak toplanma alanına gidilmelidir.',1,36),
+(10,2,'Deprem sırasında güvenli bir noktada sarsıntının bitmesi beklenmelidir.',2,37),
+(10,3,'Çalışanlar acil durum ekiplerinin talimatlarına uymalıdır.',3,35),
+(10,4,'Yetkililer izin vermeden çalışma alanına geri dönülmemelidir.',4,42);
 
-TRUNCATE TABLE dokuman_parcalari RESTART IDENTITY;
+-- Doküman etiketlerini ekler
+INSERT INTO dokuman_etiketleri (dokuman_id, etiket_adi) VALUES
+(1,'Personel'),(1,'IK'),(1,'Calisma'),(2,'Izin'),(2,'IK'),(2,'Yonetmelik'),
+(3,'Muhasebe'),(3,'Finans'),(3,'Raporlama'),(4,'Fatura'),(4,'Onay'),(4,'Muhasebe'),
+(5,'Guvenlik'),(5,'Siber Guvenlik'),(5,'Parola'),(6,'BT'),(6,'Eposta'),(6,'Internet'),
+(7,'Satin Alma'),(7,'Tedarik'),(7,'Siparis'),(8,'Tedarikci'),(8,'Degerlendirme'),(8,'Performans'),
+(9,'KVKK'),(9,'Kisisel Veri'),(9,'Gizlilik'),(10,'Acil Durum'),(10,'Yangin'),(10,'Deprem');
 
--- Doküman Parçaları Seed Verileri
+-- Dokümanları kendi departmanlarına yetkilendirir
+INSERT INTO dokuman_yetkileri (dokuman_id, departman_id, goruntuleyebilir_mi) VALUES
+(1,4,TRUE),(2,4,TRUE),(3,2,TRUE),(4,2,TRUE),(5,1,TRUE),
+(6,1,TRUE),(7,5,TRUE),(8,5,TRUE),(9,1,TRUE),(10,1,TRUE);
 
-INSERT INTO dokuman_parcalari
-(
-    dokuman_id,
-    parca_sirasi,
-    parca_metni,
-    sayfa_no,
-    token_sayisi,
-    embedding_id
-)
-VALUES
-(
-    1,
-    1,
-    'Şirketimize hoş geldiniz. Bu personel el kitabı çalışanların kuruma uyum sağlamasını kolaylaştırmak amacıyla hazırlanmıştır. Normal çalışma saatleri hafta içi 08:30 ile 17:30 arasındadır. Çalışanların mesai başlangıç ve bitiş saatlerine uyması beklenmektedir.',
-    1,
-    52,
-    'emb_doc1_chunk1'
-),
-(
-    1,
-    2,
-    'Çalışanlar yıllık izin, mazeret izni ve sağlık izni haklarından şirket politikalarına uygun olarak yararlanabilir. İzin talepleri kurumun izin yönetim sistemi üzerinden oluşturulmalı ve ilgili yönetici tarafından onaylandıktan sonra kullanılmalıdır.',
-    2,
-    47,
-    'emb_doc1_chunk2'
-),
-(
-    1,
-    3,
-    'Şirket kurallarına aykırı davranışlar disiplin süreci kapsamında değerlendirilir. Tüm çalışanların bilgi güvenliği kurallarına uyması, şirket ekipmanlarını yalnızca iş amaçlı kullanması ve kurumun etik ilkelerine uygun hareket etmesi beklenmektedir.',
-    3,
-    50,
-    'emb_doc1_chunk3'
-);
+-- Beş sohbet oturumu ekler
+INSERT INTO sohbet_oturumlari (oturum_id, kullanici_id, oturum_basligi) VALUES
+(1,1,'Bilgi Guvenligi Hakkinda'),(2,1,'KVKK Sorulari'),
+(3,2,'Personel El Kitabi'),(4,3,'Muhasebe Surecleri'),(5,5,'Satin Alma Proseduru');
 
-INSERT INTO dokuman_parcalari
-(
-    dokuman_id,
-    parca_sirasi,
-    parca_metni,
-    sayfa_no,
-    token_sayisi,
-    embedding_id
-)
-VALUES
+-- Her oturuma dört mesaj ekler
+INSERT INTO sohbet_mesajlari (mesaj_id, oturum_id, gonderen_tipi, mesaj_metni) VALUES
+(1,1,'Kullanici','Guclu parola nasil olusturulmalidir?'),
+(2,1,'AI','Parolalar buyuk ve kucuk harf, rakam ve ozel karakter icermelidir.'),
+(3,1,'Kullanici','Parolami ne siklikla degistirmeliyim?'),
+(4,1,'AI','Parolalar duzenli araliklarla degistirilmelidir.'),
+(5,2,'Kullanici','Kisisel veriler ne kadar sure saklanir?'),
+(6,2,'AI','Saklama suresi dolan veriler guvenli sekilde silinir veya anonimlestirilir.'),
+(7,2,'Kullanici','Verilere kimler erisebilir?'),
+(8,2,'AI','Yalnizca yetkilendirilmis personel kisisel verilere erisebilir.'),
+(9,3,'Kullanici','Calisma saatleri nedir?'),
+(10,3,'AI','Calisma saatleri hafta ici 08:30 ile 17:30 arasindadir.'),
+(11,3,'Kullanici','Izin basvurusu nasil yapilir?'),
+(12,3,'AI','Izin talebi sistemden olusturularak yonetici onayina gonderilir.'),
+(13,4,'Kullanici','Faturalar nasil onaylanir?'),
+(14,4,'AI','Faturalar ilgili departman tarafindan kontrol edilerek sisteme aktarilir.'),
+(15,4,'Kullanici','Ay sonu raporlari ne zaman hazirlanir?'),
+(16,4,'AI','Finansal raporlar ay sonu kapanis islemlerinden sonra hazirlanir.'),
+(17,5,'Kullanici','Satin alma sureci nasil baslar?'),
+(18,5,'AI','Satin alma talepleri sistemde olusturularak onaya gonderilir.'),
+(19,5,'Kullanici','Kac teklif alinmalidir?'),
+(20,5,'AI','En az uc farkli tedarikciden teklif alinmalidir.');
 
--- Doküman 2 - Yillik Izin Yonetmeligi
+-- AI mesajlarının kaynak doküman parçalarını ekler
+INSERT INTO mesaj_kaynaklari (mesaj_id, parca_id, benzerlik_puani)
+SELECT v.mesaj_id, dp.parca_id, v.benzerlik_puani
+FROM (VALUES
+ (2,5,1,0.94),(4,5,1,0.89),(6,9,3,0.96),(8,9,2,0.95),(10,1,1,0.98),
+ (12,1,2,0.97),(14,4,1,0.93),(16,3,3,0.96),(18,7,1,0.97),(20,7,2,0.95)
+) AS v(mesaj_id,dokuman_id,parca_sirasi,benzerlik_puani)
+INNER JOIN dokuman_parcalari dp
+    ON dp.dokuman_id = v.dokuman_id AND dp.parca_sirasi = v.parca_sirasi;
 
-(
-    2,
-    1,
-    'Çalışanlar hizmet sürelerine bağlı olarak yıllık ücretli izin hakkına sahiptir. Yıllık izin süresi yürürlükteki iş kanunu ve şirket politikaları doğrultusunda belirlenmektedir.',
-    1,
-    41,
-    'emb_doc2_chunk1'
-),
-(
-    2,
-    2,
-    'Yıllık izin talepleri en az bir hafta önceden sistem üzerinden oluşturulmalı ve ilgili yönetici tarafından onaylanmalıdır. Onaylanmayan izinler kullanılamaz.',
-    2,
-    39,
-    'emb_doc2_chunk2'
-),
-(
-    2,
-    3,
-    'Resmî tatiller yıllık izin süresinden düşülmez. Kullanılmayan izin hakları şirket politikalarına uygun olarak sonraki döneme devredilebilir.',
-    3,
-    37,
-    'emb_doc2_chunk3'
-),
-
--- Doküman 3 - Muhasebe Surecleri
-
-(
-    3,
-    1,
-    'Muhasebe birimi tüm mali kayıtları eksiksiz ve zamanında sisteme işlemekle sorumludur. Belgeler elektronik ortamda arşivlenmelidir.',
-    1,
-    36,
-    'emb_doc3_chunk1'
-),
-(
-    3,
-    2,
-    'Fatura kayıtları ilgili mevzuata uygun olarak muhasebe sistemine girilir ve gerekli kontroller tamamlandıktan sonra onaylanır.',
-    2,
-    35,
-    'emb_doc3_chunk2'
-),
-(
-    3,
-    3,
-    'Ay sonu kapanış işlemleri tamamlandıktan sonra finansal raporlar hazırlanarak yönetime sunulur.',
-    3,
-    32,
-    'emb_doc3_chunk3'
-),
-
--- Doküman 4 - Fatura Onay Proseduru
-
-(
-    4,
-    1,
-    'Tedarikçilerden gelen faturalar öncelikle ilgili departman tarafından kontrol edilir ve sisteme yüklenir.',
-    1,
-    34,
-    'emb_doc4_chunk1'
-),
-(
-    4,
-    2,
-    'Fatura tutarları satın alma siparişi ile karşılaştırılır. Uyuşmazlık olması durumunda işlem durdurulur.',
-    2,
-    33,
-    'emb_doc4_chunk2'
-),
-(
-    4,
-    3,
-    'Onaylanan faturalar muhasebe sistemine aktarılır ve ödeme planına dahil edilir.',
-    3,
-    31,
-    'emb_doc4_chunk3'
-),
-
--- Doküman 5 - Bilgi Guvenligi Politikasi
-
-(
-    5,
-    1,
-    'Tüm çalışanlar güçlü parola kullanmalı ve parolalarını üçüncü kişilerle paylaşmamalıdır. Parolalar düzenli aralıklarla değiştirilmelidir.',
-    1,
-    38,
-    'emb_doc5_chunk1'
-),
-(
-    5,
-    2,
-    'Kurumsal veriler yalnızca yetkili kullanıcılar tarafından erişilebilir. Yetkisiz erişim girişimleri kayıt altına alınmaktadır.',
-    2,
-    37,
-    'emb_doc5_chunk2'
-),
-(
-    5,
-    3,
-    'Taşınabilir bellek kullanımı şirket politikalarına uygun olmalı ve gerekli durumlarda veriler şifrelenmelidir.',
-    3,
-    35,
-    'emb_doc5_chunk3'
-),
-
--- Doküman 6 - BT Kullanim Politikasi
-
-(
-    6,
-    1,
-    'Şirket bilgisayarları yalnızca iş amaçlı kullanılmalıdır. Lisanssız yazılım kurulmasına izin verilmez.',
-    1,
-    34,
-    'emb_doc6_chunk1'
-),
-(
-    6,
-    2,
-    'Kurumsal e-posta hesapları güvenli iletişim amacıyla kullanılmalı ve şüpheli bağlantılara tıklanmamalıdır.',
-    2,
-    36,
-    'emb_doc6_chunk2'
-),
-(
-    6,
-    3,
-    'İnternet kullanımı şirket politikalarına uygun olmalı ve bilgi güvenliğini riske atacak işlemlerden kaçınılmalıdır.',
-    3,
-    35,
-    'emb_doc6_chunk3'
-),
-
--- Doküman 7 - Satin Alma Proseduru
-
-(
-    7,
-    1,
-    'Satın alma talepleri ilgili birim tarafından sistem üzerinden oluşturulur ve gerekli onay sürecine gönderilir.',
-    1,
-    37,
-    'emb_doc7_chunk1'
-),
-(
-    7,
-    2,
-    'En az üç farklı tedarikçiden teklif alınarak fiyat ve kalite değerlendirmesi yapılır.',
-    2,
-    33,
-    'emb_doc7_chunk2'
-),
-(
-    7,
-    3,
-    'Onaylanan teklifler doğrultusunda sipariş oluşturulur ve teslim süreci takip edilir.',
-    3,
-    32,
-    'emb_doc7_chunk3'
-),
-
--- Doküman 8 - Tedarikci Degerlendirme Rehberi
-
-(
-    8,
-    1,
-    'Tedarikçiler kalite, teslim süresi ve maliyet kriterlerine göre düzenli olarak değerlendirilmektedir.',
-    1,
-    34,
-    'emb_doc8_chunk1'
-),
-(
-    8,
-    2,
-    'Performans puanı düşük olan tedarikçiler için iyileştirme planı hazırlanır veya alternatif firma araştırılır.',
-    2,
-    37,
-    'emb_doc8_chunk2'
-),
-(
-    8,
-    3,
-    'Değerlendirme sonuçları yıllık raporlarda saklanır ve satın alma yönetimi tarafından incelenir.',
-    3,
-    34,
-    'emb_doc8_chunk3'
-),
-
--- Doküman 9 - KVKK Politikasi
-
-(
-    9,
-    1,
-    'Kişisel veriler yalnızca belirlenen amaçlar doğrultusunda işlenebilir ve ilgili mevzuata uygun şekilde korunmalıdır.',
-    1,
-    40,
-    'emb_doc9_chunk1'
-),
-(
-    9,
-    2,
-    'Kişisel verilere yalnızca yetkili personel erişebilir. Erişim kayıtları düzenli olarak denetlenmektedir.',
-    2,
-    38,
-    'emb_doc9_chunk2'
-),
-(
-    9,
-    3,
-    'Saklama süresi dolan kişisel veriler güvenli yöntemlerle silinir, yok edilir veya anonim hale getirilir.',
-    3,
-    39,
-    'emb_doc9_chunk3'
-),
-
--- Doküman 10 - Acil Durum Plani
-
-(
-    10,
-    1,
-    'Yangın durumunda çalışanlar en yakın acil çıkış kapısını kullanarak belirlenen toplanma alanına gitmelidir.',
-    1,
-    36,
-    'emb_doc10_chunk1'
-),
-(
-    10,
-    2,
-    'Deprem sırasında güvenli bir noktada yaşam üçgeni oluşturulmalı ve sarsıntı sona erene kadar beklenmelidir.',
-    2,
-    37,
-    'emb_doc10_chunk2'
-),
-(
-    10,
-    3,
-    'Acil durum ekipleri olay yerine ulaşıncaya kadar çalışanlar panik yapmadan güvenlik talimatlarına uymalıdır.',
-    3,
-    35,
-    'emb_doc10_chunk3'
-);
-
--- Doküman Etiketleri Seed Verileri
-
-INSERT INTO dokuman_etiketleri
-(
-    dokuman_id,
-    etiket_adi
-)
-VALUES
-(1, 'Personel'),
-(1, 'IK'),
-(1, 'Calisma'),
-
-(2, 'Izin'),
-(2, 'IK'),
-(2, 'Yonetmelik'),
-
-(3, 'Muhasebe'),
-(3, 'Finans'),
-(3, 'Raporlama'),
-
-(4, 'Fatura'),
-(4, 'Onay'),
-(4, 'Muhasebe'),
-
-(5, 'Guvenlik'),
-(5, 'Siber Guvenlik'),
-(5, 'Parola'),
-
-(6, 'BT'),
-(6, 'Eposta'),
-(6, 'Internet'),
-
-(7, 'Satin Alma'),
-(7, 'Tedarik'),
-(7, 'Siparis'),
-
-(8, 'Tedarikci'),
-(8, 'Degerlendirme'),
-(8, 'Performans'),
-
-(9, 'KVKK'),
-(9, 'Kisisel Veri'),
-(9, 'Gizlilik'),
-
-(10, 'Acil Durum'),
-(10, 'Yangin'),
-(10, 'Deprem');
-
--- Doküman Yetkileri Seed Verileri
-
-INSERT INTO dokuman_yetkileri
-(
-    dokuman_id,
-    rol_adi,
-    goruntuleyebilir_mi
-)
-VALUES
-(1, 'Personel', TRUE),
-(1, 'Yonetici', TRUE),
-
-(2, 'Personel', TRUE),
-(2, 'Yonetici', TRUE),
-
-(3, 'Yonetici', TRUE),
-(3, 'Personel', FALSE),
-
-(4, 'Yonetici', TRUE),
-(4, 'Personel', FALSE),
-
-(5, 'Personel', TRUE),
-(5, 'Yonetici', TRUE),
-
-(6, 'Personel', TRUE),
-(6, 'Yonetici', TRUE),
-
-(7, 'Personel', TRUE),
-(7, 'Yonetici', TRUE),
-
-(8, 'Personel', TRUE),
-(8, 'Yonetici', TRUE),
-
-(9, 'Personel', TRUE),
-(9, 'Yonetici', TRUE),
-
-(10, 'Personel', TRUE),
-(10, 'Yonetici', TRUE);
-
--- Sohbet Oturumları Seed Verileri
-
-INSERT INTO sohbet_oturumlari
-(
-    kullanici_id,
-    oturum_basligi,
-    baslangic_tarihi
-)
-VALUES
-(
-    1,
-    'Bilgi Guvenligi Hakkinda',
-    CURRENT_TIMESTAMP
-),
-(
-    1,
-    'KVKK Sorulari',
-    CURRENT_TIMESTAMP
-),
-(
-    2,
-    'Personel El Kitabi',
-    CURRENT_TIMESTAMP
-),
-(
-    3,
-    'Muhasebe Surecleri',
-    CURRENT_TIMESTAMP
-),
-(
-    4,
-    'Satin Alma Proseduru',
-    CURRENT_TIMESTAMP
-),
-(
-    5,
-    'Acil Durum Plani',
-    CURRENT_TIMESTAMP
-);
-
--- Sohbet Mesajları Seed Verileri
-
-INSERT INTO sohbet_mesajlari
-(
-    oturum_id,
-    gonderen_tipi,
-    mesaj_metni,
-    olusturulma_tarihi
-)
-VALUES
-
--- Oturum 1
-(1,'Kullanici','Guclu parola nasil olusturulmalidir?',CURRENT_TIMESTAMP),
-(1,'Yapay Zeka','Bilgi Guvenligi Politikasina gore parolalar buyuk ve kucuk harf, rakam ve ozel karakter icermelidir.',CURRENT_TIMESTAMP),
-(1,'Kullanici','Parolami ne siklikla degistirmeliyim?',CURRENT_TIMESTAMP),
-(1,'Yapay Zeka','Sirket politikasi geregi parolalar duzenli araliklarla degistirilmelidir.',CURRENT_TIMESTAMP),
-
--- Oturum 2
-(2,'Kullanici','Kisisel veriler ne kadar sure saklanir?',CURRENT_TIMESTAMP),
-(2,'Yapay Zeka','KVKK Politikasina gore saklama suresi dolan veriler guvenli sekilde silinir veya anonim hale getirilir.',CURRENT_TIMESTAMP),
-(2,'Kullanici','Verilere kimler erisebilir?',CURRENT_TIMESTAMP),
-(2,'Yapay Zeka','Yalnizca yetkilendirilmis personel kisisel verilere erisebilir.',CURRENT_TIMESTAMP),
-
--- Oturum 3
-(3,'Kullanici','Calisma saatleri nedir?',CURRENT_TIMESTAMP),
-(3,'Yapay Zeka','Calisma saatleri hafta ici 08:30 ile 17:30 arasindadir.',CURRENT_TIMESTAMP),
-(3,'Kullanici','Izin basvurusu nasil yapilir?',CURRENT_TIMESTAMP),
-(3,'Yapay Zeka','Izin talepleri izin yonetim sistemi uzerinden olusturularak yonetici onayina gonderilir.',CURRENT_TIMESTAMP),
-
--- Oturum 4
-(4,'Kullanici','Faturalar nasil onaylanir?',CURRENT_TIMESTAMP),
-(4,'Yapay Zeka','Faturalar ilgili departman tarafindan kontrol edilir ve daha sonra muhasebe sistemine aktarilir.',CURRENT_TIMESTAMP),
-(4,'Kullanici','Ay sonu raporlari ne zaman hazirlanir?',CURRENT_TIMESTAMP),
-(4,'Yapay Zeka','Ay sonu kapanis islemleri tamamlandiktan sonra finansal raporlar hazirlanir.',CURRENT_TIMESTAMP),
-
--- Oturum 5
-(5,'Kullanici','Satin alma sureci nasil baslar?',CURRENT_TIMESTAMP),
-(5,'Yapay Zeka','Satin alma talepleri sistem uzerinden olusturulur ve onay surecine gonderilir.',CURRENT_TIMESTAMP),
-(5,'Kullanici','Kac teklif alinmalidir?',CURRENT_TIMESTAMP),
-(5,'Yapay Zeka','En az uc farkli tedarikciden teklif alinmasi tavsiye edilmektedir.',CURRENT_TIMESTAMP),
-
--- Oturum 6
-(6,'Kullanici','Yangin sirasinda ne yapmaliyim?',CURRENT_TIMESTAMP),
-(6,'Yapay Zeka','En yakin acil cikis kullanilarak belirlenen toplanma alanina gidilmelidir.',CURRENT_TIMESTAMP),
-(6,'Kullanici','Deprem sirasinda nasil hareket etmeliyim?',CURRENT_TIMESTAMP),
-(6,'Yapay Zeka','Guvenli bir noktada yasam ucgeni olusturulmali ve sarsinti sona erene kadar beklenmelidir.',CURRENT_TIMESTAMP);
+-- Açık kimliklerle eklenen seedlerden sonra sequence değerlerini eşitler
+SELECT setval(pg_get_serial_sequence('departmanlar','departman_id'), MAX(departman_id)) FROM departmanlar;
+SELECT setval(pg_get_serial_sequence('kullanicilar','kullanici_id'), MAX(kullanici_id)) FROM kullanicilar;
+SELECT setval(pg_get_serial_sequence('dokumanlar','dokuman_id'), MAX(dokuman_id)) FROM dokumanlar;
+SELECT setval(pg_get_serial_sequence('sohbet_oturumlari','oturum_id'), MAX(oturum_id)) FROM sohbet_oturumlari;
+SELECT setval(pg_get_serial_sequence('sohbet_mesajlari','mesaj_id'), MAX(mesaj_id)) FROM sohbet_mesajlari;
