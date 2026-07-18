@@ -1,17 +1,25 @@
+# Sohbet oturumlarının API giriş ve çıkış şemalarını tanımlar
+
 from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field
 
 
-class SohbetOturumuCreate(BaseModel):
-    kullanici_id: int
-    oturum_basligi: str = Field(min_length=1, max_length=200)
+class SohbetOturumuBase(BaseModel):
+    kullanici_id: int = Field(gt=0)
+
+    oturum_basligi: str = Field(
+        min_length=1,
+        max_length=200,
+    )
 
 
-class SohbetOturumuResponse(BaseModel):
+class SohbetOturumuCreate(SohbetOturumuBase):
+    pass
+
+
+class SohbetOturumuResponse(SohbetOturumuBase):
     oturum_id: int
-    kullanici_id: int
-    oturum_basligi: str
     baslangic_tarihi: datetime
 
     model_config = ConfigDict(from_attributes=True)

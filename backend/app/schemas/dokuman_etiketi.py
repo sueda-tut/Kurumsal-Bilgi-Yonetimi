@@ -1,13 +1,22 @@
+# Doküman etiketlerinin API giriş ve çıkış şemalarını tanımlar
+
 from pydantic import BaseModel, ConfigDict, Field
 
 
-class DokumanEtiketiCreate(BaseModel):
-    etiket_adi: str = Field(min_length=1, max_length=50)
+class DokumanEtiketiBase(BaseModel):
+    dokuman_id: int = Field(gt=0)
+
+    etiket_adi: str = Field(
+        min_length=1,
+        max_length=50,
+    )
 
 
-class DokumanEtiketiResponse(BaseModel):
+class DokumanEtiketiCreate(DokumanEtiketiBase):
+    pass
+
+
+class DokumanEtiketiResponse(DokumanEtiketiBase):
     dokuman_etiket_id: int
-    dokuman_id: int
-    etiket_adi: str
 
     model_config = ConfigDict(from_attributes=True)

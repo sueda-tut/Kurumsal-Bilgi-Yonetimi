@@ -1,18 +1,31 @@
+# Sohbet mesajlarının API giriş ve çıkış şemalarını tanımlar
+
 from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
 
-class SohbetMesajiCreate(BaseModel):
-    oturum_id: int
+GonderenTipi = Literal[
+    "Kullanici",
+    "AI",
+]
+
+
+class SohbetMesajiBase(BaseModel):
+    oturum_id: int = Field(gt=0)
+
+    gonderen_tipi: GonderenTipi
+
     mesaj_metni: str = Field(min_length=1)
 
 
-class SohbetMesajiResponse(BaseModel):
+class SohbetMesajiCreate(SohbetMesajiBase):
+    pass
+
+
+class SohbetMesajiResponse(SohbetMesajiBase):
     mesaj_id: int
-    oturum_id: int
-    gonderen_tipi: str
-    mesaj_metni: str
     olusturulma_tarihi: datetime
 
     model_config = ConfigDict(from_attributes=True)
