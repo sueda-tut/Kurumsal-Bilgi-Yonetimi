@@ -1,35 +1,79 @@
+# Kullanıcı tablosuna ait temel CRUD işlemlerini gerçekleştirir
+
+import bcrypt
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.models.kullanici import Kullanici
-from app.schemas.kullanici import KullaniciCreate, KullaniciUpdate 
-
-def kullanici_id_ile_getir(db: Session, kullanici_id: int) -> Kullanici | None:
-    sorgu = select(Kullanici).where(Kullanici.kullanici_id == kullanici_id)
-    return db.execute(sorgu).scalar_one_or_none()
+from app.schemas.kullanici import KullaniciCreate
 
 
-def eposta_ile_kullanici_getir(db: Session, eposta: str) -> Kullanici | None:
-    sorgu = select(Kullanici).where(Kullanici.eposta == eposta)
-    return db.execute(sorgu).scalar_one_or_none()
+def kullanici_getir(
+    db: Session,
+    kullanici_id: int,
+) -> Kullanici | None:
+    sorgu = select(Kullanici).where(
+        Kullanici.kullanici_id == kullanici_id
+    )
+
+    return db.scalar(sorgu)
 
 
-def kullanicilari_listele(db: Session) -> list[Kullanici]:
-    sorgu = select(Kullanici).order_by(Kullanici.kullanici_id)
-    return list(db.execute(sorgu).scalars().all())
+def kullanicilari_listele(
+    db: Session,
+    offset: int = 0,
+    limit: int = 100,
+) -> list[Kullanici]:
+    sorgu = (
+        select(Kullanici)
+        .order_by(Kullanici.kullanici_id)
+        .offset(offset)
+        .limit(limit)
+    )
+
+    return list(db.scalars(sorgu).all())
+
+
+def eposta_ile_kullanici_bul(
+    db: Session,
+    eposta: str,
+) -> Kullanici | None:
+    sorgu = select(Kullanici).where(
+        Kullanici.eposta == eposta
+    )
+
+    return db.scalar(sorgu)
+
+
+def sifre_ozeti_olustur(sifre: str) -> str:
+    sifre_bytes = sifre.encode("utf-8")
+
+    if len(sifre_bytes) > 72:
+        raise ValueError(
+            "Parola bcrypt için en fazla 72 byte olabilir."
+        )
+
+    sifre_ozeti = bcrypt.hashpw(
+        sifre_bytes,
+        bcrypt.gensalt(rounds=12),
+    )
+
+    return sifre_ozeti.decode("utf-8")
 
 
 def kullanici_olustur(
     db: Session,
     kullanici_verisi: KullaniciCreate,
-    sifre_ozeti: str
 ) -> Kullanici:
     yeni_kullanici = Kullanici(
         ad_soyad=kullanici_verisi.ad_soyad,
-        eposta=kullanici_verisi.eposta,
-        sifre_ozeti=sifre_ozeti,
+        eposta=str(kullanici_verisi.eposta),
+        sifre_ozeti=sifre_ozeti_olustur(
+            kullanici_verisi.sifre
+        ),
         rol=kullanici_verisi.rol,
-        departman=kullanici_verisi.departman
+        departman_id=kullanici_verisi.departman_id,
+        aktif_mi=kullanici_verisi.aktif_mi,
     )
 
     db.add(yeni_kullanici)
@@ -37,31 +81,3 @@ def kullanici_olustur(
     db.refresh(yeni_kullanici)
 
     return yeni_kullanici
-
-def kullanici_guncelle(
-    db: Session,
-    kullanici: Kullanici,
-    guncel_veriler: KullaniciUpdate,
-    yeni_sifre_ozeti: str | None = None
-) -> Kullanici:
-    degisiklikler = guncel_veriler.model_dump(exclude_unset=True)
-
-    sifre = degisiklikler.pop("sifre", None)
-
-    for alan_adi, yeni_deger in degisiklikler.items():
-        setattr(kullanici, alan_adi, yeni_deger)
-
-    if sifre is not None and yeni_sifre_ozeti is not None:
-        kullanici.sifre_ozeti = yeni_sifre_ozeti
-
-    db.commit()
-    db.refresh(kullanici)
-
-    return kullanici
-
-def kullanici_sil(
-    db: Session,
-    kullanici: Kullanici
-) -> None:
-    db.delete(kullanici)
-    db.commit()

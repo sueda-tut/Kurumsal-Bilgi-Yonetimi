@@ -1,10 +1,11 @@
-# FastAPI uygulamasını ve veritabanı test endpoint'lerini oluşturur
+# FastAPI uygulamasını, router'ları ve veritabanı test endpoint'ini yapılandırır
 
 from fastapi import FastAPI, HTTPException
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.db.database import engine
+from app.routers import dokuman, kullanici
 
 
 app = FastAPI(
@@ -12,6 +13,10 @@ app = FastAPI(
     description="RAG tabanlı kurumsal bilgi yönetimi sistemi",
     version="1.0.0",
 )
+
+
+app.include_router(kullanici.router)
+app.include_router(dokuman.router)
 
 
 @app.get("/", tags=["Genel"])
@@ -35,5 +40,5 @@ def db_test():
     except SQLAlchemyError as error:
         raise HTTPException(
             status_code=500,
-            detail="Veritabanı bağlantısı başarısız."
+            detail="Veritabanı bağlantısı başarısız.",
         ) from error
