@@ -3,6 +3,7 @@
 from fastapi import FastAPI, HTTPException
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
+from app.routers.auth import router as auth_router
 
 from app.db.database import engine
 from app.routers import (
@@ -26,6 +27,8 @@ app.include_router(dokuman.router)
 app.include_router(sohbet.router)
 app.include_router(etiket.router)
 app.include_router(yetki.router)
+app.include_router(auth_router)
+
 
 
 @app.get("/", tags=["Genel"])

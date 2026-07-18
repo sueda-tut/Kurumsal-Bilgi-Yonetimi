@@ -16,3 +16,6 @@ __all__ = [
     "sohbet",
     "yetki",
 ]
+
+# Kimlik doğrulama router'ını dışarı aktarır
+from app.routers.auth import router as auth_router

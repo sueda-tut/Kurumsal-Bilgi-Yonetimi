@@ -1,9 +1,9 @@
 # Kullanıcı tablosuna ait temel CRUD işlemlerini gerçekleştirir
 
-import bcrypt
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.core.security import sifre_ozeti_olustur
 from app.models.kullanici import Kullanici
 from app.schemas.kullanici import KullaniciCreate
 
@@ -43,22 +43,6 @@ def eposta_ile_kullanici_bul(
     )
 
     return db.scalar(sorgu)
-
-
-def sifre_ozeti_olustur(sifre: str) -> str:
-    sifre_bytes = sifre.encode("utf-8")
-
-    if len(sifre_bytes) > 72:
-        raise ValueError(
-            "Parola bcrypt için en fazla 72 byte olabilir."
-        )
-
-    sifre_ozeti = bcrypt.hashpw(
-        sifre_bytes,
-        bcrypt.gensalt(rounds=12),
-    )
-
-    return sifre_ozeti.decode("utf-8")
 
 
 def kullanici_olustur(
