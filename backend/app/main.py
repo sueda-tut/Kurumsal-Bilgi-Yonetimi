@@ -5,7 +5,13 @@ from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.db.database import engine
-from app.routers import dokuman, kullanici
+from app.routers import (
+    dokuman,
+    etiket,
+    kullanici,
+    sohbet,
+    yetki,
+)
 
 
 app = FastAPI(
@@ -17,6 +23,9 @@ app = FastAPI(
 
 app.include_router(kullanici.router)
 app.include_router(dokuman.router)
+app.include_router(sohbet.router)
+app.include_router(etiket.router)
+app.include_router(yetki.router)
 
 
 @app.get("/", tags=["Genel"])
