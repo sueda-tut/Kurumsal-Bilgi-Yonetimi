@@ -1,21 +1,39 @@
-from fastapi import FastAPI
+# FastAPI uygulamasını ve veritabanı test endpoint'lerini oluşturur
+
+from fastapi import FastAPI, HTTPException
 from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
 
 from app.db.database import engine
 
-app = FastAPI()
+
+app = FastAPI(
+    title="Kurumsal Bilgi Yönetimi API",
+    description="RAG tabanlı kurumsal bilgi yönetimi sistemi",
+    version="1.0.0",
+)
 
 
-@app.get("/")
+@app.get("/", tags=["Genel"])
 def root():
-    return {"message": "Kurumsal Bilgi Yönetimi API çalışıyor!"}
+    return {
+        "message": "Kurumsal Bilgi Yönetimi API çalışıyor!"
+    }
 
 
-@app.get("/db-test")
+@app.get("/db-test", tags=["Veritabanı"])
 def db_test():
-    with engine.connect() as connection:
-        result = connection.execute(text("SELECT 1"))
+    try:
+        with engine.connect() as connection:
+            result = connection.execute(text("SELECT 1"))
+
         return {
             "database_connection": "Başarılı",
-            "result": result.scalar()
+            "result": result.scalar(),
         }
+
+    except SQLAlchemyError as error:
+        raise HTTPException(
+            status_code=500,
+            detail="Veritabanı bağlantısı başarısız."
+        ) from error
