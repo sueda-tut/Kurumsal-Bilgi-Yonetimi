@@ -21,13 +21,24 @@ def dokuman_getir(
     return db.scalar(sorgu)
 
 
+# Kullanıcının görebildiği dokümanları sayfalayarak listeler
+
 def dokumanlari_listele(
     db: Session,
+    gorulebilir_dokuman_idleri: list[int],
     offset: int = 0,
     limit: int = 100,
 ) -> list[Dokuman]:
+    if not gorulebilir_dokuman_idleri:
+        return []
+
     sorgu = (
         select(Dokuman)
+        .where(
+            Dokuman.dokuman_id.in_(
+                gorulebilir_dokuman_idleri
+            )
+        )
         .order_by(Dokuman.dokuman_id)
         .offset(offset)
         .limit(limit)
