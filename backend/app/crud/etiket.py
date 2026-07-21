@@ -49,3 +49,23 @@ def etiket_olustur(
     db.refresh(yeni_etiket)
 
     return yeni_etiket
+
+# Etiket adını küçük harfe dönüştürerek dokümana ekler
+
+def dokuman_etiketi_olustur(
+    db: Session,
+    dokuman_id: int,
+    etiket_adi: str,
+) -> DokumanEtiketi:
+    normal_etiket_adi = etiket_adi.strip().lower()
+
+    yeni_etiket = DokumanEtiketi(
+        dokuman_id=dokuman_id,
+        etiket_adi=normal_etiket_adi,
+    )
+
+    db.add(yeni_etiket)
+    db.commit()
+    db.refresh(yeni_etiket)
+
+    return yeni_etiket

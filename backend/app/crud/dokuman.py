@@ -1,6 +1,6 @@
 # Doküman tablosuna ait temel CRUD işlemlerini gerçekleştirir
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.models.dokuman import Dokuman
@@ -21,8 +21,7 @@ def dokuman_getir(
     return db.scalar(sorgu)
 
 
-# Kullanıcının görebildiği dokümanları sayfalayarak listeler
-
+# Kullanıcının görebildiği ve arşivlenmemiş dokümanları listeler
 def dokumanlari_listele(
     db: Session,
     gorulebilir_dokuman_idleri: list[int],
@@ -37,7 +36,8 @@ def dokumanlari_listele(
         .where(
             Dokuman.dokuman_id.in_(
                 gorulebilir_dokuman_idleri
-            )
+            ),
+            func.lower(Dokuman.durum) != "arsiv",
         )
         .order_by(Dokuman.dokuman_id)
         .offset(offset)
@@ -110,3 +110,15 @@ def yuklenen_dokumani_olustur(
     db.refresh(yeni_dokuman)
 
     return yeni_dokuman
+
+# Dokümanın durumunu arşiv olarak günceller
+def dokumani_arsivle(
+    db: Session,
+    dokuman: Dokuman,
+) -> Dokuman:
+    dokuman.durum = "Arsiv"
+
+    db.commit()
+    db.refresh(dokuman)
+
+    return dokuman

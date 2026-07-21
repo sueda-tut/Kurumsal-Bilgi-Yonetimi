@@ -72,3 +72,22 @@ def yetki_guncelle(
     db.refresh(yetki)
 
     return yetki
+
+# Doküman ile departman arasında görüntüleme yetkisi oluşturur
+def dokuman_yetkisi_olustur(
+    db: Session,
+    dokuman_id: int,
+    departman_id: int,
+    goruntuleyebilir_mi: bool,
+) -> DokumanYetkisi:
+    yeni_yetki = DokumanYetkisi(
+        dokuman_id=dokuman_id,
+        departman_id=departman_id,
+        goruntuleyebilir_mi=goruntuleyebilir_mi,
+    )
+
+    db.add(yeni_yetki)
+    db.commit()
+    db.refresh(yeni_yetki)
+
+    return yeni_yetki

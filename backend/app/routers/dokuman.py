@@ -1,4 +1,4 @@
-# Doküman yükleme, listeleme ve detay endpoint'lerini yetki kontrollü sunar
+# Doküman yükleme, listeleme ve yönetim endpoint'lerini yetki kontrollü sunar
 
 from pathlib import Path
 from uuid import uuid4
@@ -13,20 +13,32 @@ from fastapi import (
     UploadFile,
     status,
 )
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import get_current_user
 from app.crud.dokuman import (
     dokuman_getir,
     dokumanlari_listele,
+    dokumani_arsivle as dokuman_kaydini_arsivle,
     yuklenen_dokumani_olustur,
 )
+from app.crud.etiket import dokuman_etiketi_olustur
+from app.crud.yetki import dokuman_yetkisi_olustur
 from app.db.database import get_db
 from app.models.kullanici import Kullanici
 from app.schemas.dokuman import DokumanResponse
+from app.schemas.dokuman_etiketi import (
+    DokumanEtiketiResponse,
+    EtiketEkleRequest,
+)
+from app.schemas.dokuman_yetkisi import (
+    DokumanYetkisiResponse,
+    YetkiEkleRequest,
+)
 from app.services.dokuman_yetki import (
     dokumani_gorebilir_mi,
+    dokumani_yonetebilir_mi,
     gorebildigi_dokuman_idleri,
 )
 
@@ -61,6 +73,7 @@ IZIN_VERILEN_DOSYALAR = {
 }
 
 
+# Yeni doküman yüklenmesini sağlar
 @router.post(
     "/yukle",
     response_model=DokumanResponse,
@@ -90,7 +103,10 @@ async def dokuman_yukle(
     if uzanti not in IZIN_VERILEN_DOSYALAR:
         raise HTTPException(
             status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-            detail="Yalnızca PDF, DOCX ve XLSX dosyaları yüklenebilir.",
+            detail=(
+                "Yalnızca PDF, DOCX ve XLSX "
+                "dosyaları yüklenebilir."
+            ),
         )
 
     if dosya.content_type not in IZIN_VERILEN_DOSYALAR[uzanti]:
@@ -115,8 +131,13 @@ async def dokuman_yukle(
 
                 if toplam_boyut > MAKSIMUM_DOSYA_BOYUTU:
                     raise HTTPException(
-                        status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-                        detail="Dosya boyutu en fazla 20 MB olabilir.",
+                        status_code=(
+                            status.HTTP_413_REQUEST_ENTITY_TOO_LARGE
+                        ),
+                        detail=(
+                            "Dosya boyutu en fazla "
+                            "20 MB olabilir."
+                        ),
                     )
 
                 hedef.write(parca)
@@ -140,7 +161,9 @@ async def dokuman_yukle(
             dosya_turu=uzanti.removeprefix("."),
             dosya_yolu=f"/uploads/{uuid_dosya_adi}",
             dosya_boyutu=toplam_boyut,
-            yukleyen_kullanici_id=current_user.kullanici_id,
+            yukleyen_kullanici_id=(
+                current_user.kullanici_id
+            ),
             departman_id=current_user.departman_id,
         )
 
@@ -176,6 +199,160 @@ async def dokuman_yukle(
         await dosya.close()
 
 
+# Yönetici veya yükleyenin dokümana etiket eklemesini sağlar
+@router.post(
+    "/{dokuman_id}/etiket",
+    response_model=DokumanEtiketiResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Dokümana etiket ekle",
+)
+def dokumana_etiket_ekle(
+    dokuman_id: int,
+    etiket_verisi: EtiketEkleRequest,
+    db: Session = Depends(get_db),
+    current_user: Kullanici = Depends(get_current_user),
+):
+    dokuman = dokuman_getir(
+        db=db,
+        dokuman_id=dokuman_id,
+    )
+
+    if dokuman is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Doküman bulunamadı.",
+        )
+
+    if not dokumani_yonetebilir_mi(
+        kullanici=current_user,
+        dokuman=dokuman,
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Bu dokümanı yönetme yetkiniz yok.",
+        )
+
+    if not etiket_verisi.etiket_adi.strip():
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Etiket adı boş olamaz.",
+        )
+
+    try:
+        return dokuman_etiketi_olustur(
+            db=db,
+            dokuman_id=dokuman_id,
+            etiket_adi=etiket_verisi.etiket_adi,
+        )
+
+    except IntegrityError as error:
+        db.rollback()
+
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Bu etiket dokümana daha önce eklenmiş.",
+        ) from error
+
+
+# Yönetici veya yükleyenin departman yetkisi eklemesini sağlar
+@router.post(
+    "/{dokuman_id}/yetki",
+    response_model=DokumanYetkisiResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Dokümana departman yetkisi ekle",
+)
+def dokumana_yetki_ekle(
+    dokuman_id: int,
+    yetki_verisi: YetkiEkleRequest,
+    db: Session = Depends(get_db),
+    current_user: Kullanici = Depends(get_current_user),
+):
+    dokuman = dokuman_getir(
+        db=db,
+        dokuman_id=dokuman_id,
+    )
+
+    if dokuman is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Doküman bulunamadı.",
+        )
+
+    if not dokumani_yonetebilir_mi(
+        kullanici=current_user,
+        dokuman=dokuman,
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Bu dokümanı yönetme yetkiniz yok.",
+        )
+
+    try:
+        return dokuman_yetkisi_olustur(
+            db=db,
+            dokuman_id=dokuman_id,
+            departman_id=yetki_verisi.departman_id,
+            goruntuleyebilir_mi=(
+                yetki_verisi.goruntuleyebilir_mi
+            ),
+        )
+
+    except IntegrityError as error:
+        db.rollback()
+
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "Departman bulunamadı veya bu departmana "
+                "daha önce yetki verilmiş."
+            ),
+        ) from error
+
+
+# Yönetici veya yükleyenin dokümanı arşivlemesini sağlar
+@router.patch(
+    "/{dokuman_id}/arsivle",
+    response_model=DokumanResponse,
+    summary="Dokümanı arşivle",
+)
+def dokuman_arsivle(
+    dokuman_id: int,
+    db: Session = Depends(get_db),
+    current_user: Kullanici = Depends(get_current_user),
+):
+    dokuman = dokuman_getir(
+        db=db,
+        dokuman_id=dokuman_id,
+    )
+
+    if dokuman is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Doküman bulunamadı.",
+        )
+
+    if not dokumani_yonetebilir_mi(
+        kullanici=current_user,
+        dokuman=dokuman,
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Bu dokümanı yönetme yetkiniz yok.",
+        )
+
+    if dokuman.durum.casefold() == "arsiv":
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Doküman zaten arşivlenmiş.",
+        )
+
+    return dokuman_kaydini_arsivle(
+        db=db,
+        dokuman=dokuman,
+    )
+
+
+# Kullanıcının görebildiği arşivlenmemiş dokümanları listeler
 @router.get(
     "",
     response_model=list[DokumanResponse],
@@ -200,6 +377,7 @@ def dokuman_listesi(
     )
 
 
+# Yetki kontrolünden sonra doküman detayını döndürür
 @router.get(
     "/{dokuman_id}",
     response_model=DokumanResponse,

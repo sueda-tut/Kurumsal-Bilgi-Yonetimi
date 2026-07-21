@@ -75,3 +75,15 @@ def dokumani_gorebilir_mi(
     )
 
     return dokuman_id in set(gorulebilir_idler)
+
+# Kullanıcının doküman üzerinde yönetim işlemi yapıp yapamayacağını belirler
+
+def dokumani_yonetebilir_mi(
+    kullanici: Kullanici,
+    dokuman: Dokuman,
+) -> bool:
+    return (
+        yonetici_mi(kullanici)
+        or dokuman.yukleyen_kullanici_id
+        == kullanici.kullanici_id
+    )
