@@ -81,3 +81,32 @@ def dokuman_durumu_guncelle(
     db.refresh(dokuman)
 
     return dokuman
+
+# Yüklenen dosya için doküman veritabanı kaydı oluşturur
+def yuklenen_dokumani_olustur(
+    db: Session,
+    baslik: str,
+    dosya_adi: str,
+    dosya_turu: str,
+    dosya_yolu: str,
+    dosya_boyutu: int,
+    yukleyen_kullanici_id: int,
+    departman_id: int,
+) -> Dokuman:
+    yeni_dokuman = Dokuman(
+        baslik=baslik,
+        dosya_adi=dosya_adi,
+        dosya_turu=dosya_turu,
+        yukleyen_kullanici_id=yukleyen_kullanici_id,
+        departman_id=departman_id,
+        surum_no=1,
+        dosya_yolu=dosya_yolu,
+        durum="Isleniyor",
+        dosya_boyutu=dosya_boyutu,
+    )
+
+    db.add(yeni_dokuman)
+    db.commit()
+    db.refresh(yeni_dokuman)
+
+    return yeni_dokuman

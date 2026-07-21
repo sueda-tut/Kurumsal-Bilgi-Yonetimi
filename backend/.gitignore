@@ -28,3 +28,7 @@ __pycache__/
 # İşletim sistemi dosyaları
 .DS_Store
 Thumbs.db
+
+# API üzerinden yüklenen gerçek dokümanları engeller
+uploads/
+**/uploads/

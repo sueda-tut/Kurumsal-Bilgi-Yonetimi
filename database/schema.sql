@@ -53,7 +53,7 @@ CREATE TABLE dokumanlar
     CONSTRAINT fk_dokumanlar_departmanlar FOREIGN KEY (departman_id)
         REFERENCES departmanlar(departman_id),
     CONSTRAINT uq_dokumanlar_dosya_yolu UNIQUE (dosya_yolu),
-    CONSTRAINT chk_dokumanlar_dosya_turu CHECK (dosya_turu IN ('pdf', 'docs', 'xlsx')),
+    CONSTRAINT chk_dokumanlar_dosya_turu CHECK (dosya_turu IN ('pdf', 'docx', 'xlsx')),
     CONSTRAINT chk_dokumanlar_surum_no CHECK (surum_no >= 1),
     CONSTRAINT chk_dokumanlar_durum CHECK (durum IN ('Isleniyor', 'Aktif', 'Hata', 'Arsiv')),
     CONSTRAINT chk_dokumanlar_dosya_boyutu CHECK (dosya_boyutu > 0)
