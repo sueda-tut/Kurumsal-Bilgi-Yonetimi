@@ -132,7 +132,7 @@ async def dokuman_yukle(
                 if toplam_boyut > MAKSIMUM_DOSYA_BOYUTU:
                     raise HTTPException(
                         status_code=(
-                            status.HTTP_413_REQUEST_ENTITY_TOO_LARGE
+                            status.HTTP_413_CONTENT_TOO_LARGE
                         ),
                         detail=(
                             "Dosya boyutu en fazla "
