@@ -170,6 +170,11 @@ CREATE INDEX idx_dokuman_yetkileri_departman_id ON dokuman_yetkileri(departman_i
 CREATE INDEX idx_mesaj_kaynaklari_mesaj ON mesaj_kaynaklari(mesaj_id);
 CREATE INDEX idx_mesaj_kaynaklari_parca ON mesaj_kaynaklari(parca_id);
 
+-- Doküman embedding aramalarını hızlandırır
+CREATE INDEX IF NOT EXISTS idx_dokuman_parcalari_embedding_hnsw
+ON dokuman_parcalari
+USING hnsw (embedding vector_cosine_ops);
+
 -- Kullanıcı güncellenme tarihini otomatik yeniler
 CREATE OR REPLACE FUNCTION fn_kullanicilar_guncelleme_tarihi()
 RETURNS TRIGGER LANGUAGE plpgsql AS $$

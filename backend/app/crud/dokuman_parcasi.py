@@ -1,4 +1,4 @@
-# Doküman parçalarını veritabanına kaydeden CRUD işlemlerini gerçekleştirir
+# Doküman parçalarını embedding vektörleriyle birlikte PostgreSQL'e kaydeder
 
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
@@ -12,39 +12,61 @@ def dokuman_parcalarini_kaydet(
     db: Session,
     dokuman: Dokuman,
     parcalar: list[ParcaTaslagi],
+    embeddingler: list[list[float]],
 ) -> list[DokumanParcasi]:
-    """Dokümanın eski parçalarını silip yeni parçalarını kaydeder."""
+    """Doküman parçalarını ve embedding vektörlerini tek işlemde kaydeder."""
 
-    db.execute(
-        delete(DokumanParcasi).where(
-            DokumanParcasi.dokuman_id
-            == dokuman.dokuman_id
+    if len(parcalar) != len(embeddingler):
+        raise ValueError(
+            "Parça ve embedding sayıları eşleşmiyor."
         )
-    )
 
-    kayitlar = [
-        DokumanParcasi(
-            dokuman_id=dokuman.dokuman_id,
-            parca_sirasi=parca_sirasi,
-            parca_metni=parca.parca_metni,
-            sayfa_no=parca.sayfa_no,
-            token_sayisi=parca.token_sayisi,
-            embedding=None,
+    if not parcalar:
+        raise ValueError(
+            "Kaydedilecek doküman parçası bulunmuyor."
         )
-        for parca_sirasi, parca in enumerate(
-            parcalar,
-            start=1,
+
+    try:
+        db.execute(
+            delete(DokumanParcasi).where(
+                DokumanParcasi.dokuman_id
+                == dokuman.dokuman_id
+            )
         )
-    ]
 
-    db.add_all(kayitlar)
-    dokuman.durum = "Aktif"
-    db.commit()
+        kayitlar = [
+            DokumanParcasi(
+                dokuman_id=dokuman.dokuman_id,
+                parca_sirasi=parca_sirasi,
+                parca_metni=parca.parca_metni,
+                sayfa_no=parca.sayfa_no,
+                token_sayisi=parca.token_sayisi,
+                embedding=embeddingler[
+                    parca_sirasi - 1
+                ],
+            )
+            for parca_sirasi, parca in enumerate(
+                parcalar,
+                start=1,
+            )
+        ]
 
-    for kayit in kayitlar:
-        db.refresh(kayit)
+        db.add_all(kayitlar)
 
-    return kayitlar
+        # Doküman yalnızca parçalar ve embedding'ler
+        # başarıyla hazırlandıktan sonra aktif olur
+        dokuman.durum = "Aktif"
+
+        db.commit()
+
+        for kayit in kayitlar:
+            db.refresh(kayit)
+
+        return kayitlar
+
+    except Exception:
+        db.rollback()
+        raise
 
 
 def dokuman_parcalarini_listele(
