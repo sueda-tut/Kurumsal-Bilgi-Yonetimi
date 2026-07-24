@@ -41,6 +41,10 @@ from app.services.dokuman_yetki import (
     dokumani_yonetebilir_mi,
     gorebildigi_dokuman_idleri,
 )
+from app.services.dokuman_isleme import (
+    DokumanIslemeHatasi,
+    dokumani_isle,
+)
 
 
 router = APIRouter(
@@ -167,10 +171,41 @@ async def dokuman_yukle(
             departman_id=current_user.departman_id,
         )
 
+        try:
+            dokumani_isle(
+                db=db,
+                dokuman=yeni_dokuman,
+                fiziksel_dosya_yolu=kayit_yolu,
+            )
+
+        except DokumanIslemeHatasi as error:
+            db.rollback()
+
+            yeni_dokuman.durum = "Hata"
+            db.commit()
+            db.refresh(yeni_dokuman)
+
+            raise HTTPException(
+                status_code=(
+                    status.HTTP_422_UNPROCESSABLE_ENTITY
+                ),
+                detail=str(error),
+            ) from error
+
+        db.refresh(yeni_dokuman)
+
         return yeni_dokuman
 
     except HTTPException:
-        if kayit_yolu.exists():
+        dokuman_olustu_mu = (
+            "yeni_dokuman" in locals()
+            and yeni_dokuman is not None
+        )
+
+        if (
+            not dokuman_olustu_mu
+            and kayit_yolu.exists()
+        ):
             kayit_yolu.unlink()
 
         raise
