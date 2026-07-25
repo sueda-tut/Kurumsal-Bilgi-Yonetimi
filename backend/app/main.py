@@ -23,6 +23,7 @@ from app.routers import (
     yetki,
 )
 from app.routers.auth import router as auth_router
+from app.routers.soru import router as soru_router
 
 
 # Uygulama başlatılırken temel log yapılandırmasını etkinleştirir
@@ -61,6 +62,7 @@ app.include_router(sohbet.router)
 app.include_router(etiket.router)
 app.include_router(yetki.router)
 app.include_router(auth_router)
+app.include_router(soru_router)
 
 
 @app.get("/", tags=["Genel"])
@@ -86,3 +88,6 @@ def db_test():
             status_code=500,
             detail="Veritabanı bağlantısı başarısız.",
         ) from error
+
+# Yetki filtreli RAG soru-cevap router'ını içe aktarır
+from app.routers.soru import router as soru_router
