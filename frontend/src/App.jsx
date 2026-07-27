@@ -1,4 +1,4 @@
-// Uygulamanın giriş ve korumalı sayfa yönlendirmelerini tanımlar
+// Giriş, dashboard ve doküman sayfalarının yönlendirmelerini tanımlar
 
 import {
     Navigate,
@@ -6,8 +6,11 @@ import {
     Routes,
 } from "react-router-dom";
 
+import AppLayout from "./components/AppLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import DashboardPage from "./pages/DashboardPage";
+import DocumentDetailPage from "./pages/DocumentDetailPage";
+import DocumentsPage from "./pages/DocumentsPage";
 import LoginPage from "./pages/LoginPage";
 
 
@@ -20,10 +23,22 @@ function App() {
             />
 
             <Route element={<ProtectedRoute />}>
-                <Route
-                    path="/panel"
-                    element={<DashboardPage />}
-                />
+                <Route element={<AppLayout />}>
+                    <Route
+                        path="/panel"
+                        element={<DashboardPage />}
+                    />
+
+                    <Route
+                        path="/dokumanlar"
+                        element={<DocumentsPage />}
+                    />
+
+                    <Route
+                        path="/dokumanlar/:dokumanId"
+                        element={<DocumentDetailPage />}
+                    />
+                </Route>
             </Route>
 
             <Route

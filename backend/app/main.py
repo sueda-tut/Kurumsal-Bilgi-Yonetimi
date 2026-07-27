@@ -25,7 +25,7 @@ from app.routers import (
 )
 from app.routers.auth import router as auth_router
 from app.routers.soru import router as soru_router
-
+from app.routers.departman import router as departman_router
 
 # Uygulama başlatılırken temel log yapılandırmasını etkinleştirir
 logging_yapilandir()
@@ -75,6 +75,7 @@ app.include_router(etiket.router)
 app.include_router(yetki.router)
 app.include_router(auth_router)
 app.include_router(soru_router)
+app.include_router(departman_router)
 
 
 @app.get("/", tags=["Genel"])
