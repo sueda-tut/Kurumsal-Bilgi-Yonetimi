@@ -1,4 +1,4 @@
-// Giriş, dashboard ve doküman sayfalarının yönlendirmelerini tanımlar
+// Giriş, dashboard, doküman ve yükleme sayfalarının yönlendirmelerini tanımlar
 
 import {
     Navigate,
@@ -11,6 +11,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import DashboardPage from "./pages/DashboardPage";
 import DocumentDetailPage from "./pages/DocumentDetailPage";
 import DocumentsPage from "./pages/DocumentsPage";
+import DocumentUploadPage from "./pages/DocumentUploadPage";
 import LoginPage from "./pages/LoginPage";
 
 
@@ -32,6 +33,11 @@ function App() {
                     <Route
                         path="/dokumanlar"
                         element={<DocumentsPage />}
+                    />
+
+                    <Route
+                        path="/dokumanlar/yukle"
+                        element={<DocumentUploadPage />}
                     />
 
                     <Route

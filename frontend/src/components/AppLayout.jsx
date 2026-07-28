@@ -1,4 +1,4 @@
-// Korumalı sayfalarda ortak menü, başlık ve çıkış alanını oluşturur
+// Korumalı sayfalarda ortak menü ve çıkış alanını oluşturur
 
 import {
     NavLink,
@@ -18,6 +18,12 @@ function AppLayout() {
         });
     }
 
+    function navSinifi({ isActive }) {
+        return isActive
+            ? "nav-link active"
+            : "nav-link";
+    }
+
     return (
         <div className="app-shell">
             <header className="app-header">
@@ -26,27 +32,30 @@ function AppLayout() {
                     className="app-brand"
                 >
                     <span className="brand-badge">KB</span>
-
                     <span>Kurumsal Bilgi Yönetimi</span>
                 </NavLink>
 
                 <nav className="app-navigation">
                     <NavLink
                         to="/panel"
-                        className={({ isActive }) =>
-                            isActive ? "nav-link active" : "nav-link"
-                        }
+                        className={navSinifi}
                     >
                         Dashboard
                     </NavLink>
 
                     <NavLink
                         to="/dokumanlar"
-                        className={({ isActive }) =>
-                            isActive ? "nav-link active" : "nav-link"
-                        }
+                        end
+                        className={navSinifi}
                     >
                         Dokümanlar
+                    </NavLink>
+
+                    <NavLink
+                        to="/dokumanlar/yukle"
+                        className={navSinifi}
+                    >
+                        Doküman Yükle
                     </NavLink>
                 </nav>
 

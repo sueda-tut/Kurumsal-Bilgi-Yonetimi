@@ -1,10 +1,12 @@
 # Doküman yükleme, listeleme ve yönetim endpoint'lerini yetki kontrollü sunar
 
+import logging
 from pathlib import Path
 from uuid import uuid4
 
 from fastapi import (
     APIRouter,
+    BackgroundTasks,
     Depends,
     File,
     Form,
@@ -25,7 +27,7 @@ from app.crud.dokuman import (
 )
 from app.crud.etiket import dokuman_etiketi_olustur
 from app.crud.yetki import dokuman_yetkisi_olustur
-from app.db.database import get_db
+from app.db.database import SessionLocal, get_db
 from app.models.kullanici import Kullanici
 from app.schemas.dokuman import DokumanResponse
 from app.schemas.dokuman_etiketi import (
@@ -36,15 +38,15 @@ from app.schemas.dokuman_yetkisi import (
     DokumanYetkisiResponse,
     YetkiEkleRequest,
 )
+from app.services.dokuman_isleme import dokumani_isle
 from app.services.dokuman_yetki import (
     dokumani_gorebilir_mi,
     dokumani_yonetebilir_mi,
     gorebildigi_dokuman_idleri,
 )
-from app.services.dokuman_isleme import (
-    DokumanIslemeHatasi,
-    dokumani_isle,
-)
+
+
+logger = logging.getLogger(__name__)
 
 
 router = APIRouter(
@@ -77,7 +79,73 @@ IZIN_VERILEN_DOSYALAR = {
 }
 
 
-# Yeni doküman yüklenmesini sağlar
+# Dokümanı ayrı bir veritabanı oturumuyla arka planda işler
+def dokumani_arka_planda_isle(
+    dokuman_id: int,
+    fiziksel_dosya_yolu: Path,
+) -> None:
+    db = SessionLocal()
+
+    try:
+        dokuman = dokuman_getir(
+            db=db,
+            dokuman_id=dokuman_id,
+        )
+
+        if dokuman is None:
+            logger.error(
+                "Arka planda işlenecek doküman bulunamadı: %s",
+                dokuman_id,
+            )
+            return
+
+        logger.info(
+            "Doküman işleme başladı: dokuman_id=%s",
+            dokuman_id,
+        )
+
+        dokumani_isle(
+            db=db,
+            dokuman=dokuman,
+            fiziksel_dosya_yolu=fiziksel_dosya_yolu,
+        )
+
+        logger.info(
+            "Doküman başarıyla işlendi: dokuman_id=%s",
+            dokuman_id,
+        )
+
+    except Exception:
+        db.rollback()
+
+        logger.exception(
+            "Doküman işlenirken hata oluştu: dokuman_id=%s",
+            dokuman_id,
+        )
+
+        try:
+            dokuman = dokuman_getir(
+                db=db,
+                dokuman_id=dokuman_id,
+            )
+
+            if dokuman is not None:
+                dokuman.durum = "Hata"
+                db.commit()
+
+        except SQLAlchemyError:
+            db.rollback()
+
+            logger.exception(
+                "Doküman hata durumuna geçirilemedi: dokuman_id=%s",
+                dokuman_id,
+            )
+
+    finally:
+        db.close()
+
+
+# Dosyayı kaydeder ve doküman işleme sürecini arka planda başlatır
 @router.post(
     "/yukle",
     response_model=DokumanResponse,
@@ -85,15 +153,23 @@ IZIN_VERILEN_DOSYALAR = {
     summary="Yeni doküman yükle",
 )
 async def dokuman_yukle(
+    background_tasks: BackgroundTasks,
     dosya: UploadFile = File(...),
     baslik: str | None = Form(default=None),
+    departman_id: int | None = Form(default=None),
     db: Session = Depends(get_db),
     current_user: Kullanici = Depends(get_current_user),
 ):
-    if current_user.departman_id is None:
+    secilen_departman_id = (
+        departman_id
+        if departman_id is not None
+        else current_user.departman_id
+    )
+
+    if secilen_departman_id is None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Kullanıcının departman bilgisi bulunmuyor.",
+            detail="Doküman için departman seçilmelidir.",
         )
 
     if not dosya.filename:
@@ -116,7 +192,10 @@ async def dokuman_yukle(
     if dosya.content_type not in IZIN_VERILEN_DOSYALAR[uzanti]:
         raise HTTPException(
             status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-            detail="Dosyanın MIME türü uzantısıyla uyumlu değil.",
+            detail=(
+                "Dosyanın MIME türü "
+                "uzantısıyla uyumlu değil."
+            ),
         )
 
     UPLOADS_DIR.mkdir(
@@ -126,7 +205,9 @@ async def dokuman_yukle(
 
     uuid_dosya_adi = f"{uuid4().hex}{uzanti}"
     kayit_yolu = UPLOADS_DIR / uuid_dosya_adi
+
     toplam_boyut = 0
+    yeni_dokuman = None
 
     try:
         with kayit_yolu.open("wb") as hedef:
@@ -168,47 +249,43 @@ async def dokuman_yukle(
             yukleyen_kullanici_id=(
                 current_user.kullanici_id
             ),
-            departman_id=current_user.departman_id,
+            departman_id=secilen_departman_id,
         )
 
-        try:
-            dokumani_isle(
-                db=db,
-                dokuman=yeni_dokuman,
-                fiziksel_dosya_yolu=kayit_yolu,
-            )
+        # HTTP cevabı döndükten sonra metin çıkarma,
+        # chunk oluşturma ve embedding işlemi başlar
+        background_tasks.add_task(
+            dokumani_arka_planda_isle,
+            yeni_dokuman.dokuman_id,
+            kayit_yolu,
+        )
 
-        except DokumanIslemeHatasi as error:
-            db.rollback()
-
-            yeni_dokuman.durum = "Hata"
-            db.commit()
-            db.refresh(yeni_dokuman)
-
-            raise HTTPException(
-                status_code=(
-                    status.HTTP_422_UNPROCESSABLE_ENTITY
-                ),
-                detail=str(error),
-            ) from error
-
-        db.refresh(yeni_dokuman)
+        logger.info(
+            "Doküman yükleme kaydı oluşturuldu: dokuman_id=%s",
+            yeni_dokuman.dokuman_id,
+        )
 
         return yeni_dokuman
 
     except HTTPException:
-        dokuman_olustu_mu = (
-            "yeni_dokuman" in locals()
-            and yeni_dokuman is not None
-        )
-
         if (
-            not dokuman_olustu_mu
+            yeni_dokuman is None
             and kayit_yolu.exists()
         ):
             kayit_yolu.unlink()
 
         raise
+
+    except IntegrityError as error:
+        db.rollback()
+
+        if kayit_yolu.exists():
+            kayit_yolu.unlink()
+
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Seçilen departman geçerli değil.",
+        ) from error
 
     except SQLAlchemyError as error:
         db.rollback()
