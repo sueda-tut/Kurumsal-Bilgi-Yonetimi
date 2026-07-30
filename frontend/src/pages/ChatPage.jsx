@@ -92,7 +92,7 @@ function ChatPage() {
                     mesajMetni: mesaj.mesaj_metni,
                     olusturulmaTarihi:
                         mesaj.olusturulma_tarihi,
-                    kaynaklar: [],
+                        kaynaklar: mesaj.kaynaklar || [],
                 })),
             );
         } catch (error) {

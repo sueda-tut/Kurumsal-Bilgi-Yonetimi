@@ -14,6 +14,7 @@ import DocumentDetailPage from "./pages/DocumentDetailPage";
 import DocumentsPage from "./pages/DocumentsPage";
 import DocumentUploadPage from "./pages/DocumentUploadPage";
 import LoginPage from "./pages/LoginPage";
+import ProfilePage from "./pages/ProfilePage";
 
 
 function App() {
@@ -49,6 +50,11 @@ function App() {
                     <Route
                         path="/dokumanlar/:dokumanId"
                         element={<DocumentDetailPage />}
+                    />
+
+                    <Route
+                        path="/profil"
+                        element={<ProfilePage />}
                     />
                 </Route>
             </Route>

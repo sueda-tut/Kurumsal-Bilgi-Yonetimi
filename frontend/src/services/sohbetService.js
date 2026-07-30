@@ -11,10 +11,10 @@ export async function sohbetleriGetir() {
 }
 
 
-// Belirli bir sohbetin mesajlarını getirir
+// Seçilen sohbetin mesajlarını kaynaklarıyla birlikte getirir
 export async function sohbetMesajlariniGetir(oturumId) {
     const response = await api.get(
-        `/sohbetler/${oturumId}`,
+        `/sohbetler/${oturumId}/detay`
     );
 
     return response.data;

@@ -26,6 +26,10 @@ from app.routers import (
 from app.routers.auth import router as auth_router
 from app.routers.soru import router as soru_router
 from app.routers.departman import router as departman_router
+from app.routers.profil import router as profil_router
+from app.routers.sohbet_gecmisi import (
+    router as sohbet_gecmisi_router,
+)
 
 # Uygulama başlatılırken temel log yapılandırmasını etkinleştirir
 logging_yapilandir()
@@ -76,6 +80,8 @@ app.include_router(yetki.router)
 app.include_router(auth_router)
 app.include_router(soru_router)
 app.include_router(departman_router)
+app.include_router(profil_router)
+app.include_router(sohbet_gecmisi_router)
 
 
 @app.get("/", tags=["Genel"])

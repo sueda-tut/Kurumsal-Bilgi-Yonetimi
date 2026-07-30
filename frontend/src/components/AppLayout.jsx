@@ -64,6 +64,13 @@ function AppLayout() {
                     >
                         Doküman Yükle
                     </NavLink>
+
+                    <NavLink
+                        to="/profil"
+                        className={navSinifi}
+                    >
+                        Profil
+                    </NavLink>
                 </nav>
 
                 <button
