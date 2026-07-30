@@ -1,4 +1,4 @@
-// Giriş, dashboard, doküman ve yükleme sayfalarının yönlendirmelerini tanımlar
+// Uygulamanın giriş ve korumalı sayfa yönlendirmelerini tanımlar
 
 import {
     Navigate,
@@ -8,6 +8,7 @@ import {
 
 import AppLayout from "./components/AppLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
+import ChatPage from "./pages/ChatPage";
 import DashboardPage from "./pages/DashboardPage";
 import DocumentDetailPage from "./pages/DocumentDetailPage";
 import DocumentsPage from "./pages/DocumentsPage";
@@ -28,6 +29,11 @@ function App() {
                     <Route
                         path="/panel"
                         element={<DashboardPage />}
+                    />
+
+                    <Route
+                        path="/sohbet"
+                        element={<ChatPage />}
                     />
 
                     <Route

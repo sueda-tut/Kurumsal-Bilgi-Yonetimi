@@ -44,6 +44,13 @@ function AppLayout() {
                     </NavLink>
 
                     <NavLink
+                        to="/sohbet"
+                        className={navSinifi}
+                    >
+                        AI Sohbet
+                    </NavLink>
+
+                    <NavLink
                         to="/dokumanlar"
                         end
                         className={navSinifi}
