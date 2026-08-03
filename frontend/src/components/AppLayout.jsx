@@ -1,14 +1,47 @@
-// Korumalı sayfalarda ortak menü ve çıkış alanını oluşturur
+// Korumalı sayfalarda ortak menü, yönetici bağlantısı ve çıkış alanını oluşturur
 
+import {
+    useEffect,
+    useState,
+} from "react";
 import {
     NavLink,
     Outlet,
     useNavigate,
 } from "react-router-dom";
 
+import { profilGetir } from "../services/profilService";
+
 
 function AppLayout() {
     const navigate = useNavigate();
+    const [yoneticiMi, setYoneticiMi] = useState(false);
+
+    useEffect(() => {
+        let aktif = true;
+
+        async function kullaniciRolunuGetir() {
+            try {
+                const profil = await profilGetir();
+
+                if (aktif) {
+                    setYoneticiMi(
+                        profil.rol === "Yonetici",
+                    );
+                }
+            } catch {
+                if (aktif) {
+                    setYoneticiMi(false);
+                }
+            }
+        }
+
+        kullaniciRolunuGetir();
+
+        return () => {
+            aktif = false;
+        };
+    }, []);
 
     function cikisYap() {
         localStorage.removeItem("access_token");
@@ -64,6 +97,15 @@ function AppLayout() {
                     >
                         Doküman Yükle
                     </NavLink>
+
+                    {yoneticiMi && (
+                        <NavLink
+                            to="/departman-yonetimi"
+                            className={navSinifi}
+                        >
+                            Departmanlar
+                        </NavLink>
+                    )}
 
                     <NavLink
                         to="/profil"

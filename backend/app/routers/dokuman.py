@@ -15,6 +15,7 @@ from fastapi import (
     UploadFile,
     status,
 )
+from fastapi.responses import FileResponse
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session
 
@@ -78,6 +79,22 @@ IZIN_VERILEN_DOSYALAR = {
     },
 }
 
+# Dosya indirme ve görüntüleme sırasında kullanılacak MIME türlerini tanımlar
+DOSYA_MIME_TURLERI = {
+    "pdf": "application/pdf",
+    "docx": (
+        "application/vnd.openxmlformats-officedocument."
+        "wordprocessingml.document"
+    ),
+    "docs": (
+        "application/vnd.openxmlformats-officedocument."
+        "wordprocessingml.document"
+    ),
+    "xlsx": (
+        "application/vnd.openxmlformats-officedocument."
+        "spreadsheetml.sheet"
+    ),
+}
 
 # Dokümanı ayrı bir veritabanı oturumuyla arka planda işler
 def dokumani_arka_planda_isle(
@@ -488,6 +505,102 @@ def dokuman_listesi(
         limit=limit,
     )
 
+# Yetkili kullanıcının dokümana ait fiziksel dosyayı açmasını veya indirmesini sağlar
+@router.get(
+    "/{dokuman_id}/dosya",
+    summary="Yetki kontrollü doküman dosyasını aç",
+)
+def dokuman_dosyasini_ac(
+    dokuman_id: int,
+    db: Session = Depends(get_db),
+    current_user: Kullanici = Depends(get_current_user),
+):
+    dokuman = dokuman_getir(
+        db=db,
+        dokuman_id=dokuman_id,
+    )
+
+    if dokuman is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Doküman bulunamadı.",
+        )
+
+    if not dokumani_gorebilir_mi(
+        db=db,
+        kullanici=current_user,
+        dokuman_id=dokuman_id,
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Bu doküman dosyasını görüntüleme yetkiniz yok.",
+        )
+
+    # Veritabanındaki yolun yalnızca dosya adını kullanarak
+    # uploads klasörü dışına erişilmesini engeller
+    guvenli_dosya_adi = Path(
+        dokuman.dosya_yolu
+    ).name
+
+    fiziksel_dosya_yolu = (
+        UPLOADS_DIR / guvenli_dosya_adi
+    ).resolve()
+
+    uploads_klasoru = UPLOADS_DIR.resolve()
+
+    if uploads_klasoru not in fiziksel_dosya_yolu.parents:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Geçersiz doküman dosya yolu.",
+        )
+
+    if (
+        not fiziksel_dosya_yolu.exists()
+        or not fiziksel_dosya_yolu.is_file()
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=(
+                "Doküman kaydı mevcut ancak fiziksel dosya "
+                "sunucuda bulunamadı."
+            ),
+        )
+
+    dosya_turu = (
+        dokuman.dosya_turu or ""
+    ).strip().lower()
+
+    mime_turu = DOSYA_MIME_TURLERI.get(
+        dosya_turu,
+        "application/octet-stream",
+    )
+
+    uzanti = fiziksel_dosya_yolu.suffix.lower()
+
+    # Kullanıcıya UUID yerine anlamlı bir dosya adı gösterir
+    indirilecek_dosya_adi = (
+        f"{dokuman.baslik}{uzanti}"
+    )
+
+    # PDF tarayıcıda açılır, Word ve Excel indirilir
+    icerik_davranisi = (
+        "inline"
+        if dosya_turu == "pdf"
+        else "attachment"
+    )
+
+    logger.info(
+        "Doküman dosyası istendi: dokuman_id=%s kullanici_id=%s",
+        dokuman_id,
+        current_user.kullanici_id,
+    )
+
+    return FileResponse(
+        path=fiziksel_dosya_yolu,
+        media_type=mime_turu,
+        filename=indirilecek_dosya_adi,
+        content_disposition_type=icerik_davranisi,
+    )
 
 # Yetki kontrolünden sonra doküman detayını döndürür
 @router.get(

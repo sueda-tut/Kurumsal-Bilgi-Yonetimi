@@ -10,11 +10,13 @@ import AppLayout from "./components/AppLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ChatPage from "./pages/ChatPage";
 import DashboardPage from "./pages/DashboardPage";
+import DepartmentManagementPage from "./pages/DepartmentManagementPage";
 import DocumentDetailPage from "./pages/DocumentDetailPage";
 import DocumentsPage from "./pages/DocumentsPage";
 import DocumentUploadPage from "./pages/DocumentUploadPage";
 import LoginPage from "./pages/LoginPage";
 import ProfilePage from "./pages/ProfilePage";
+import RegisterPage from "./pages/RegisterPage";
 
 
 function App() {
@@ -23,6 +25,11 @@ function App() {
             <Route
                 path="/giris"
                 element={<LoginPage />}
+            />
+
+            <Route
+                path="/kayit"
+                element={<RegisterPage />}
             />
 
             <Route element={<ProtectedRoute />}>
@@ -53,6 +60,11 @@ function App() {
                     />
 
                     <Route
+                        path="/departman-yonetimi"
+                        element={<DepartmentManagementPage />}
+                    />
+
+                    <Route
                         path="/profil"
                         element={<ProfilePage />}
                     />
@@ -61,12 +73,22 @@ function App() {
 
             <Route
                 path="/"
-                element={<Navigate to="/panel" replace />}
+                element={
+                    <Navigate
+                        to="/panel"
+                        replace
+                    />
+                }
             />
 
             <Route
                 path="*"
-                element={<Navigate to="/panel" replace />}
+                element={
+                    <Navigate
+                        to="/panel"
+                        replace
+                    />
+                }
             />
         </Routes>
     );

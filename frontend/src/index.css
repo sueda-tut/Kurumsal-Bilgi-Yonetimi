@@ -1518,3 +1518,328 @@ select {
         padding: 22px;
     }
 }
+
+/* Giriş ve kayıt ekranları arasındaki geçiş alanını düzenler */
+
+.register-card {
+    max-width: 520px;
+}
+
+.login-card select {
+    width: 100%;
+    min-height: 48px;
+    padding: 0 14px;
+    border: 1px solid #d0d5dd;
+    border-radius: 10px;
+    color: #101828;
+    background: #ffffff;
+    font: inherit;
+}
+
+.login-card select:focus {
+    border-color: #155eef;
+    outline: 3px solid rgb(21 94 239 / 12%);
+}
+
+.auth-switch-text {
+    margin: 22px 0 0;
+    color: #667085;
+    text-align: center;
+}
+
+.auth-switch-text a {
+    color: #155eef;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.auth-switch-text a:hover {
+    text-decoration: underline;
+}
+
+.success-message {
+    margin: 0 0 18px;
+    padding: 13px 15px;
+    border: 1px solid #abefc6;
+    border-radius: 10px;
+    color: #067647;
+    background: #ecfdf3;
+}
+
+/* Doküman detayındaki fiziksel dosya bağlantısını düzenler */
+
+.document-file-action {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.document-file-link {
+    display: inline;
+    width: auto;
+    min-height: auto;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    color: #155eef;
+    background: transparent;
+    font: inherit;
+    font-weight: 600;
+    text-align: left;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    cursor: pointer;
+}
+
+.document-file-link:hover:not(:disabled) {
+    color: #004eeb;
+}
+
+.document-file-link:focus-visible {
+    border-radius: 4px;
+    outline: 3px solid rgb(21 94 239 / 20%);
+}
+
+.document-file-link:disabled {
+    color: #98a2b3;
+    cursor: wait;
+}
+
+.document-file-hint {
+    color: #98a2b3;
+    font-size: 13px;
+}
+
+.document-file-error {
+    margin: 0 0 24px;
+}
+
+/* Departman yönetimi sayfasını biçimlendirir */
+
+.department-page {
+    min-height: calc(100vh - 96px);
+    padding: 56px max(24px, 6vw);
+    background: #f5f7fb;
+}
+
+.department-page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+    max-width: 1400px;
+    margin: 0 auto 32px;
+}
+
+.department-page-header h1 {
+    margin: 6px 0 10px;
+    color: #101828;
+    font-size: clamp(32px, 4vw, 48px);
+}
+
+.department-page-header p {
+    margin: 0;
+    color: #667085;
+}
+
+.department-count-card {
+    display: flex;
+    min-width: 190px;
+    padding: 22px 26px;
+    flex-direction: column;
+    border: 1px solid #dbe3f0;
+    border-radius: 20px;
+    background: #ffffff;
+    box-shadow: 0 14px 35px rgb(16 24 40 / 7%);
+}
+
+.department-count-card strong {
+    color: #155eef;
+    font-size: 34px;
+}
+
+.department-count-card span {
+    color: #667085;
+    font-size: 14px;
+}
+
+.department-content-grid {
+    display: grid;
+    max-width: 1400px;
+    margin: 0 auto;
+    grid-template-columns: minmax(0, 1.4fr) minmax(320px, 0.8fr);
+    gap: 28px;
+}
+
+.department-list-card,
+.department-form-card,
+.department-state-card {
+    border: 1px solid #dbe3f0;
+    border-radius: 24px;
+    background: #ffffff;
+    box-shadow: 0 18px 45px rgb(16 24 40 / 7%);
+}
+
+.department-list-card,
+.department-form-card {
+    padding: 30px;
+}
+
+.department-card-heading h2,
+.department-form-card h2 {
+    margin: 6px 0 10px;
+    color: #101828;
+    font-size: 26px;
+}
+
+.department-form-card > p:not(.eyebrow) {
+    margin: 0;
+    color: #667085;
+}
+
+.department-list {
+    display: grid;
+    margin-top: 24px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.department-list-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 17px;
+    border: 1px solid #e4e7ec;
+    border-radius: 16px;
+    background: #f9fafb;
+}
+
+.department-icon {
+    display: grid;
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    place-items: center;
+    border-radius: 13px;
+    color: #155eef;
+    background: #dbeafe;
+    font-weight: 800;
+}
+
+.department-list-item div {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.department-list-item strong {
+    overflow: hidden;
+    color: #101828;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.department-list-item div span {
+    color: #98a2b3;
+    font-size: 13px;
+}
+
+.department-form {
+    display: flex;
+    margin-top: 28px;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.department-form label {
+    color: #344054;
+    font-weight: 700;
+}
+
+.department-form input {
+    width: 100%;
+    min-height: 52px;
+    padding: 0 16px;
+    border: 1px solid #d0d5dd;
+    border-radius: 12px;
+    color: #101828;
+    background: #ffffff;
+    font: inherit;
+}
+
+.department-form input:focus {
+    border-color: #155eef;
+    outline: 3px solid rgb(21 94 239 / 12%);
+}
+
+.department-form .primary-button {
+    width: 100%;
+    margin-top: 8px;
+}
+
+.department-state-card {
+    display: flex;
+    max-width: 850px;
+    min-height: 220px;
+    margin: 40px auto;
+    padding: 36px;
+    align-items: center;
+    justify-content: center;
+    gap: 22px;
+    text-align: center;
+}
+
+.department-state-card.access-denied {
+    text-align: left;
+}
+
+.access-denied-icon {
+    display: grid;
+    width: 56px;
+    height: 56px;
+    flex: 0 0 56px;
+    place-items: center;
+    border-radius: 50%;
+    color: #b42318;
+    background: #fee4e2;
+    font-size: 26px;
+    font-weight: 800;
+}
+
+.department-state-card h1 {
+    margin: 6px 0 10px;
+    color: #101828;
+}
+
+.department-state-card p {
+    margin: 0;
+    color: #667085;
+}
+
+@media (max-width: 1050px) {
+    .department-content-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 760px) {
+    .department-page {
+        padding: 32px 18px;
+    }
+
+    .department-page-header {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .department-list {
+        grid-template-columns: 1fr;
+    }
+
+    .department-count-card {
+        min-width: 0;
+    }
+}

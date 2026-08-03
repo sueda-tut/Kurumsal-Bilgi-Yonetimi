@@ -1,13 +1,19 @@
 // Kullanıcının FastAPI üzerinden giriş yapmasını sağlayan formu oluşturur
 
 import { useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import {
+    Link,
+    Navigate,
+    useLocation,
+    useNavigate,
+} from "react-router-dom";
 
-import api from "../api/api";
+import { girisYap } from "../services/authService";
 
 
 function LoginPage() {
     const navigate = useNavigate();
+    const location = useLocation();
 
     const [eposta, setEposta] = useState("");
     const [sifre, setSifre] = useState("");
@@ -15,26 +21,27 @@ function LoginPage() {
     const [yukleniyor, setYukleniyor] = useState(false);
 
     const mevcutToken = localStorage.getItem("access_token");
+    const basariMesaji = location.state?.kayitBasarili;
 
     if (mevcutToken) {
         return <Navigate to="/panel" replace />;
     }
 
-    async function girisYap(event) {
+    async function girisFormunuGonder(event) {
         event.preventDefault();
 
         setHata("");
         setYukleniyor(true);
 
         try {
-            const response = await api.post("/giris", {
-                eposta: eposta.trim(),
+            const sonuc = await girisYap({
+                eposta: eposta.trim().toLowerCase(),
                 sifre,
             });
 
             localStorage.setItem(
                 "access_token",
-                response.data.access_token,
+                sonuc.access_token,
             );
 
             navigate("/panel", {
@@ -60,12 +67,22 @@ function LoginPage() {
 
                     <div>
                         <h1>Kurumsal Bilgi Yönetimi</h1>
-                        <p>Hesabınızla sisteme giriş yapın.</p>
+                        <p>
+                            Hesabınızla sisteme giriş yapın.
+                        </p>
                     </div>
                 </div>
 
-                <form onSubmit={girisYap}>
-                    <label htmlFor="eposta">E-posta</label>
+                {basariMesaji && (
+                    <p className="success-message">
+                        {basariMesaji}
+                    </p>
+                )}
+
+                <form onSubmit={girisFormunuGonder}>
+                    <label htmlFor="eposta">
+                        E-posta
+                    </label>
 
                     <input
                         id="eposta"
@@ -79,7 +96,9 @@ function LoginPage() {
                         required
                     />
 
-                    <label htmlFor="sifre">Şifre</label>
+                    <label htmlFor="sifre">
+                        Şifre
+                    </label>
 
                     <input
                         id="sifre"
@@ -94,7 +113,9 @@ function LoginPage() {
                     />
 
                     {hata && (
-                        <p className="error-message">{hata}</p>
+                        <p className="error-message">
+                            {hata}
+                        </p>
                     )}
 
                     <button
@@ -106,6 +127,13 @@ function LoginPage() {
                             : "Giriş yap"}
                     </button>
                 </form>
+
+                <p className="auth-switch-text">
+                    Henüz hesabınız yok mu?{" "}
+                    <Link to="/kayit">
+                        Kayıt olun
+                    </Link>
+                </p>
             </section>
         </main>
     );

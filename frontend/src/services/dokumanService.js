@@ -172,3 +172,15 @@ export async function dokumanDurumunuBekle(
         "Doküman işleme işlemi beklenen sürede tamamlanmadı.",
     );
 }
+
+// Yetki kontrollü doküman dosyasını blob olarak getirir
+export async function dokumanDosyasiniGetir(dokumanId) {
+    const response = await api.get(
+        `/dokumanlar/${dokumanId}/dosya`,
+        {
+            responseType: "blob",
+        },
+    );
+
+    return response.data;
+}

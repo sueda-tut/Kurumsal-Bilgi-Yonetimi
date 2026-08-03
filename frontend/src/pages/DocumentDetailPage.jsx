@@ -1,12 +1,18 @@
-// Yetki kontrollü tek doküman bilgisini detaylı olarak gösterir
+// Yetki kontrollü tek dokümanın bilgilerini ve fiziksel dosyasını gösterir
 
-import { useEffect, useState } from "react";
+import {
+    useEffect,
+    useState,
+} from "react";
 import {
     Link,
     useParams,
 } from "react-router-dom";
 
-import { dokumanDetayiGetir } from "../services/dokumanService";
+import {
+    dokumanDetayiGetir,
+    dokumanDosyasiniGetir,
+} from "../services/dokumanService";
 
 
 function tarihBicimlendir(tarih) {
@@ -30,12 +36,44 @@ function dosyaBoyutuBicimlendir(byte) {
 }
 
 
+// Blob biçiminde dönen API hata mesajını okur
+async function dosyaHataMesajiGetir(error) {
+    const hataVerisi = error.response?.data;
+
+    if (hataVerisi instanceof Blob) {
+        try {
+            const metin = await hataVerisi.text();
+            const json = JSON.parse(metin);
+
+            return (
+                json.error?.message ||
+                json.detail ||
+                "Doküman dosyası açılamadı."
+            );
+        } catch {
+            return "Doküman dosyası açılamadı.";
+        }
+    }
+
+    return (
+        hataVerisi?.error?.message ||
+        hataVerisi?.detail ||
+        error.message ||
+        "Doküman dosyası açılamadı."
+    );
+}
+
+
 function DocumentDetailPage() {
     const { dokumanId } = useParams();
 
     const [dokuman, setDokuman] = useState(null);
     const [yukleniyor, setYukleniyor] = useState(true);
     const [hata, setHata] = useState("");
+    const [dosyaAciliyor, setDosyaAciliyor] =
+        useState(false);
+    const [dosyaHatasi, setDosyaHatasi] =
+        useState("");
 
     useEffect(() => {
         async function detayiYukle() {
@@ -55,6 +93,7 @@ function DocumentDetailPage() {
                 } else {
                     setHata(
                         error.response?.data?.error?.message ||
+                        error.response?.data?.detail ||
                         "Doküman detayı alınamadı.",
                     );
                 }
@@ -65,6 +104,91 @@ function DocumentDetailPage() {
 
         detayiYukle();
     }, [dokumanId]);
+
+
+    // PDF dosyasını açar, Word ve Excel dosyasını indirir
+    async function dokumanDosyasiniAc() {
+        if (dosyaAciliyor || !dokuman) {
+            return;
+        }
+
+        setDosyaAciliyor(true);
+        setDosyaHatasi("");
+
+        const dosyaTuru = (
+            dokuman.dosya_turu || ""
+        ).toLocaleLowerCase("tr-TR");
+
+        // PDF penceresini doğrudan tıklama sırasında açarak
+        // tarayıcının açılır pencereyi engellemesini önler
+        const pdfPenceresi =
+            dosyaTuru === "pdf"
+                ? window.open("", "_blank")
+                : null;
+
+        try {
+            const dosyaBlobu =
+                await dokumanDosyasiniGetir(
+                    dokuman.dokuman_id,
+                );
+
+            const nesneAdresi =
+                URL.createObjectURL(dosyaBlobu);
+
+            if (dosyaTuru === "pdf") {
+                if (!pdfPenceresi) {
+                    URL.revokeObjectURL(nesneAdresi);
+
+                    throw new Error(
+                        "Tarayıcı yeni sekme açılmasını engelledi.",
+                    );
+                }
+
+                pdfPenceresi.location.href =
+                    nesneAdresi;
+
+                window.setTimeout(() => {
+                    URL.revokeObjectURL(
+                        nesneAdresi,
+                    );
+                }, 60000);
+
+                return;
+            }
+
+            const indirmeBaglantisi =
+                document.createElement("a");
+
+            indirmeBaglantisi.href =
+                nesneAdresi;
+
+            indirmeBaglantisi.download =
+                dokuman.dosya_adi;
+
+            document.body.appendChild(
+                indirmeBaglantisi,
+            );
+
+            indirmeBaglantisi.click();
+            indirmeBaglantisi.remove();
+
+            URL.revokeObjectURL(nesneAdresi);
+        } catch (error) {
+            if (
+                pdfPenceresi &&
+                !pdfPenceresi.closed
+            ) {
+                pdfPenceresi.close();
+            }
+
+            setDosyaHatasi(
+                await dosyaHataMesajiGetir(error),
+            );
+        } finally {
+            setDosyaAciliyor(false);
+        }
+    }
+
 
     if (yukleniyor) {
         return (
@@ -113,13 +237,38 @@ function DocumentDetailPage() {
 
                         <h1>{dokuman.baslik}</h1>
 
-                        <p>{dokuman.dosya_adi}</p>
+                        <div className="document-file-action">
+                            <button
+                                type="button"
+                                className="document-file-link"
+                                onClick={dokumanDosyasiniAc}
+                                disabled={dosyaAciliyor}
+                                title="Doküman dosyasını aç"
+                            >
+                                {dosyaAciliyor
+                                    ? "Dosya açılıyor..."
+                                    : dokuman.dosya_adi}
+                            </button>
+
+                            <span className="document-file-hint">
+                                {dokuman.dosya_turu
+                                    .toLowerCase() === "pdf"
+                                    ? "Görüntülemek için tıklayın"
+                                    : "İndirmek için tıklayın"}
+                            </span>
+                        </div>
                     </div>
 
                     <span className="file-type large">
                         {dokuman.dosya_turu.toUpperCase()}
                     </span>
                 </div>
+
+                {dosyaHatasi && (
+                    <p className="error-message document-file-error">
+                        {dosyaHatasi}
+                    </p>
+                )}
 
                 <dl className="detail-grid">
                     <div>
@@ -174,14 +323,16 @@ function DocumentDetailPage() {
                                 Bu dokümana etiket eklenmemiş.
                             </span>
                         ) : (
-                            dokuman.etiketler.map((etiket) => (
-                                <span
-                                    key={etiket}
-                                    className="tag"
-                                >
-                                    {etiket}
-                                </span>
-                            ))
+                            dokuman.etiketler.map(
+                                (etiket) => (
+                                    <span
+                                        key={etiket}
+                                        className="tag"
+                                    >
+                                        {etiket}
+                                    </span>
+                                ),
+                            )
                         )}
                     </div>
                 </section>
