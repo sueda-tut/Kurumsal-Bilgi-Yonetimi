@@ -1,0 +1,15 @@
+# Docker build bağlamına alınmayacak proje dosyalarını belirler
+
+.git/
+.github/
+.venv/
+**/__pycache__/
+**/*.py[cod]
+**/.pytest_cache/
+backend/.env
+backend/uploads/
+frontend/.env
+frontend/node_modules/
+frontend/dist/
+docs/
+*.log

@@ -1,0 +1,9 @@
+# Backend Docker imajına alınmayacak dosyaları belirler
+
+__pycache__/
+*.py[cod]
+.pytest_cache/
+tests/
+.env
+uploads/
+*.log

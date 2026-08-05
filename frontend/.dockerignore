@@ -1,0 +1,6 @@
+# Frontend Docker imajına alınmayacak dosyaları belirler
+
+node_modules/
+dist/
+.env
+npm-debug.log*
