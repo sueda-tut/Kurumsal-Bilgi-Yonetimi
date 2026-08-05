@@ -5,6 +5,7 @@ import {
     useRef,
     useState,
 } from "react";
+import ReactMarkdown from "react-markdown";
 
 import {
     sohbetleriGetir,
@@ -325,7 +326,13 @@ function ChatPage() {
 
                                     <div className="message-content">
                                         <div className="message-bubble">
-                                            {mesaj.mesajMetni}
+                                            {kullaniciMesaji ? (
+                                                mesaj.mesajMetni
+                                            ) : (
+                                                <ReactMarkdown>
+                                                    {mesaj.mesajMetni}
+                                                </ReactMarkdown>
+                                            )}
                                         </div>
 
                                         <time className="message-time">

@@ -1,4 +1,4 @@
-// Yetki kontrollü tek dokümanın bilgilerini ve fiziksel dosyasını gösterir
+// Yetki kontrollü tek dokümanın bilgilerini, dosyasını ve arşivleme işlemini gösterir
 
 import {
     useEffect,
@@ -6,13 +6,16 @@ import {
 } from "react";
 import {
     Link,
+    useNavigate,
     useParams,
 } from "react-router-dom";
 
 import {
     dokumanDetayiGetir,
     dokumanDosyasiniGetir,
+    dokumaniArsivle,
 } from "../services/dokumanService";
+import { profilGetir } from "../services/profilService";
 
 
 function tarihBicimlendir(tarih) {
@@ -64,17 +67,35 @@ async function dosyaHataMesajiGetir(error) {
 }
 
 
+// Standart API hata cevabından kullanıcıya gösterilecek mesajı çıkarır
+function hataMesajiGetir(error, varsayilanMesaj) {
+    return (
+        error.response?.data?.error?.message ||
+        error.response?.data?.detail ||
+        error.message ||
+        varsayilanMesaj
+    );
+}
+
+
 function DocumentDetailPage() {
     const { dokumanId } = useParams();
+    const navigate = useNavigate();
 
     const [dokuman, setDokuman] = useState(null);
+    const [profil, setProfil] = useState(null);
     const [yukleniyor, setYukleniyor] = useState(true);
     const [hata, setHata] = useState("");
     const [dosyaAciliyor, setDosyaAciliyor] =
         useState(false);
     const [dosyaHatasi, setDosyaHatasi] =
         useState("");
+    const [arsivleniyor, setArsivleniyor] =
+        useState(false);
+    const [arsivHatasi, setArsivHatasi] =
+        useState("");
 
+    // Doküman detayını API üzerinden getirir
     useEffect(() => {
         async function detayiYukle() {
             try {
@@ -92,9 +113,10 @@ function DocumentDetailPage() {
                     setHata("Doküman bulunamadı.");
                 } else {
                     setHata(
-                        error.response?.data?.error?.message ||
-                        error.response?.data?.detail ||
-                        "Doküman detayı alınamadı.",
+                        hataMesajiGetir(
+                            error,
+                            "Doküman detayı alınamadı.",
+                        ),
                     );
                 }
             } finally {
@@ -105,6 +127,30 @@ function DocumentDetailPage() {
         detayiYukle();
     }, [dokumanId]);
 
+    // Arşivleme butonunun yalnızca yöneticiye gösterilmesi için profili getirir
+    useEffect(() => {
+        let aktif = true;
+
+        async function profiliYukle() {
+            try {
+                const sonuc = await profilGetir();
+
+                if (aktif) {
+                    setProfil(sonuc);
+                }
+            } catch {
+                if (aktif) {
+                    setProfil(null);
+                }
+            }
+        }
+
+        profiliYukle();
+
+        return () => {
+            aktif = false;
+        };
+    }, []);
 
     // PDF dosyasını açar, Word ve Excel dosyasını indirir
     async function dokumanDosyasiniAc() {
@@ -119,7 +165,7 @@ function DocumentDetailPage() {
             dokuman.dosya_turu || ""
         ).toLocaleLowerCase("tr-TR");
 
-        // PDF penceresini doğrudan tıklama sırasında açarak
+        // PDF penceresini kullanıcı tıklaması sırasında açarak
         // tarayıcının açılır pencereyi engellemesini önler
         const pdfPenceresi =
             dosyaTuru === "pdf"
@@ -189,6 +235,45 @@ function DocumentDetailPage() {
         }
     }
 
+    // Yönetici onayından sonra dokümanı arşivler
+    async function dokumaniArsivleVeListeyeDon() {
+        if (arsivleniyor || !dokuman) {
+            return;
+        }
+
+        const onaylandiMi = window.confirm(
+            `"${dokuman.baslik}" dokümanını arşivlemek istediğinize emin misiniz?`,
+        );
+
+        if (!onaylandiMi) {
+            return;
+        }
+
+        setArsivleniyor(true);
+        setArsivHatasi("");
+
+        try {
+            await dokumaniArsivle(
+                dokuman.dokuman_id,
+            );
+
+            navigate("/dokumanlar", {
+                replace: true,
+                state: {
+                    mesaj: "Doküman başarıyla arşivlendi.",
+                },
+            });
+        } catch (error) {
+            setArsivHatasi(
+                hataMesajiGetir(
+                    error,
+                    "Doküman arşivlenemedi.",
+                ),
+            );
+        } finally {
+            setArsivleniyor(false);
+        }
+    }
 
     if (yukleniyor) {
         return (
@@ -259,14 +344,37 @@ function DocumentDetailPage() {
                         </div>
                     </div>
 
-                    <span className="file-type large">
-                        {dokuman.dosya_turu.toUpperCase()}
-                    </span>
+                    <div className="detail-heading-actions">
+                        <span className="file-type large">
+                            {dokuman.dosya_turu.toUpperCase()}
+                        </span>
+
+                        {profil?.rol === "Yonetici" && (
+                            <button
+                                type="button"
+                                className="archive-document-button"
+                                disabled={arsivleniyor}
+                                onClick={
+                                    dokumaniArsivleVeListeyeDon
+                                }
+                            >
+                                {arsivleniyor
+                                    ? "Arşivleniyor..."
+                                    : "Dokümanı arşivle"}
+                            </button>
+                        )}
+                    </div>
                 </div>
 
                 {dosyaHatasi && (
                     <p className="error-message document-file-error">
                         {dosyaHatasi}
+                    </p>
+                )}
+
+                {arsivHatasi && (
+                    <p className="error-message document-archive-error">
+                        {arsivHatasi}
                     </p>
                 )}
 

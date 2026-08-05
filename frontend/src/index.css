@@ -1843,3 +1843,58 @@ select {
         min-width: 0;
     }
 }
+
+/* Yöneticiye özel doküman arşivleme alanını biçimlendirir */
+
+.detail-heading-actions {
+    display: flex;
+    align-items: flex-end;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.archive-document-button {
+    min-height: 42px;
+    padding: 0 16px;
+    border: 1px solid #f04438;
+    border-radius: 10px;
+    color: #b42318;
+    background: #fff5f4;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.archive-document-button:hover:not(:disabled) {
+    color: #ffffff;
+    background: #d92d20;
+}
+
+.archive-document-button:disabled {
+    cursor: wait;
+    opacity: 0.65;
+}
+
+.document-archive-error {
+    margin: 0 0 24px;
+}
+
+@media (max-width: 700px) {
+    .detail-heading-actions {
+        width: 100%;
+        align-items: flex-start;
+    }
+}
+
+/* AI mesajlarındaki Markdown görünümünü düzenler */
+.message-row.ai .message-bubble p {
+    margin: 0 0 0.75rem;
+}
+
+.message-row.ai .message-bubble p:last-child {
+    margin-bottom: 0;
+}
+
+.message-row.ai .message-bubble strong {
+    font-weight: 700;
+}

@@ -184,3 +184,12 @@ export async function dokumanDosyasiniGetir(dokumanId) {
 
     return response.data;
 }
+
+// Yönetici veya yükleyenin dokümanı arşivlemesini sağlar
+export async function dokumaniArsivle(dokumanId) {
+    const response = await api.patch(
+        `/dokumanlar/${dokumanId}/arsivle`,
+    );
+
+    return response.data;
+}

@@ -8,7 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 DosyaTuru = Literal[
     "pdf",
-    "docs",
+    "docx",
     "xlsx",
 ]
 
