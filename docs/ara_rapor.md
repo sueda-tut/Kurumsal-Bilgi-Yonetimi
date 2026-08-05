@@ -416,7 +416,18 @@ Yönetici veya yükleyenin dokümanı arşivleyebilmesi
 
 Kayıt olan kullanıcılar Personel rolüyle kullanıcı tablosuna eklenmektedir. Yöneticiye ait işlemler hem frontend görünürlüğü hem de backend yetki kontrolüyle sınırlandırılmıştır.
 
-14. Otomatik Testler
+14. Plan Dışı Ek Geliştirmeler
+
+Projenin başlangıç planında bulunmamasına rağmen, kullanılabilirliği ve yönetilebilirliği artırmak amacıyla aşağıdaki ek özellikler geliştirilmiştir:
+
+- Kullanıcıların ad, e-posta, parola ve departman bilgileriyle sisteme kayıt olabilmesi sağlanmıştır. Yeni kullanıcılar güvenli parola özetiyle `kullanicilar` tablosuna kaydedilmektedir.
+- Yönetici rolündeki kullanıcıların sistem üzerinden yeni departman oluşturabilmesi sağlanmıştır. Bu özellik yalnızca yöneticilerin erişebildiği departman yönetimi ekranına eklenmiştir.
+- Yetkili kullanıcıların doküman detay ekranından fiziksel dosyaya ulaşabilmesi sağlanmıştır. PDF dosyaları tarayıcıda görüntülenirken DOCX ve XLSX dosyaları güvenli şekilde indirilebilmektedir.
+- Test amaçlı boş veya eski dokümanlar arşivlenmiş; PDF, DOCX ve XLSX formatlarında gerçek içerikli kurumsal dokümanlar sisteme yüklenmiştir.
+- Yeni dokümanların metin çıkarma, parçalama ve embedding işlemleri tamamlanarak yetki filtreli RAG soru-cevap sisteminde kullanılabilmesi sağlanmıştır.
+- Yönetici kullanıcıların dokümanları arayüz üzerinden arşivleyebilmesi sağlanmış ve arşivlenen dokümanların aktif listelerde görünmesi engellenmiştir.
+
+15. Otomatik Testler
 
 Backend tarafındaki kritik işlemler için Pytest kullanılarak otomatik testler hazırlanmıştır.
 
@@ -434,13 +445,25 @@ Dosya uzantısı ile MIME türü uyumsuzluğunun reddedilmesi
 
 20 MB üzerindeki dosyanın reddedilmesi
 
+Yetki filtreli pgvector aramasında İK personelinin Muhasebe doküman parçalarını alamamasının doğrulanması
+
 Testler gerçek Supabase verilerini değiştirmeyecek şekilde dependency override ve mock yapıları kullanılarak hazırlanmıştır.
 
 Test sonucu:
 
-6 passed
+7 passed
 
-15. Yetki, Güvenlik ve RAG Testleri
+Doküman metni çıkarma modülü için ayrıca PDF, DOCX ve XLSX formatlarında üç bağımsız test uygulanmıştır.
+
+AI metin çıkarma test sonucu:
+
+3 passed
+
+Toplam otomatik test sonucu:
+
+10 passed
+
+16. Yetki, Güvenlik ve RAG Testleri
 
 Sistemin departman bazlı yetkilendirme yapısını, doküman erişim kurallarını ve RAG sürecinde bilgi sızıntısı oluşup oluşmadığını doğrulamak amacıyla temel kullanım senaryoları test edilmiştir.
 
@@ -508,7 +531,7 @@ Güvenlik Testi Sonucu
 
 Toplam 5 güvenlik ve yetkilendirme senaryosunun tamamı başarıyla geçmiştir. Testlerde departmanlar arasında yetkisiz doküman erişimi veya RAG üzerinden bilgi sızıntısı tespit edilmemiştir.
 
-16. İlk RAG Cevap Doğruluğu Ölçümü
+17. İlk RAG Cevap Doğruluğu Ölçümü
 
 RAG sisteminin cevap üretme başarısını değerlendirmek amacıyla farklı departmanlara ve dosya türlerine ait dokümanlar üzerinden 15 örnek soru sorulmuştur. Cevapların doküman içeriğiyle uyumu ve gösterilen kaynakların doğru departmana ait olması birlikte değerlendirilmiştir.
 
@@ -718,7 +741,7 @@ RAG bilgi sızıntısı
 
 Muhasebe takip tablosunda ödeme durumu ve vade bilgileri bulunmadığı için bu alanlarla ilgili hazırlanan ilk soru geçersiz kabul edilmiştir. Bu soru doğruluk hesabına dahil edilmemiş ve doküman içeriğiyle uyumlu bütçe-gerçekleşen sorusuyla değiştirilmiştir.
 
-17. Tespit Edilen Hatalar ve Çözümleri
+18. Tespit Edilen Hatalar ve Çözümleri
 
 No
 
@@ -760,7 +783,16 @@ Bu durum hata değil, beklenen güvenlik davranışı olarak doğrulandı.
 
 ✅ Beklenen davranış
 
-18. Genel Değerlendirme
+19. Bilinen Eksikler ve İyileştirme Önerileri
+
+- Eski ve arşivlenmiş bazı doküman parçalarında embedding verisi bulunmamaktadır. Bu durum aktif dokümanları ve mevcut RAG aramalarını etkilememektedir.
+- Yüklenen dosyalar şu an uygulamanın yerel `uploads/` klasöründe saklanmaktadır. Üretim ortamında bulut tabanlı dosya depolama kullanılmalıdır.
+- PDF dosyaları tarayıcıda görüntülenebilirken DOCX ve XLSX dosyaları indirilerek açılmaktadır.
+- Doküman çıkarma, parçalama ve embedding üretme işlemleri aynı yükleme akışında yürütülmektedir. Büyük dosya veya yoğun kullanım için arka plan görev sistemi eklenebilir.
+- Otomatik testlerde kullanılan bazı kütüphanelerden kullanım dışı bırakılma uyarısı alınmaktadır. Bu uyarı testlerin çalışmasını etkilememektedir.
+- Sistem, OpenAI API ve Supabase bağlantısına bağımlıdır. Bu servislerin erişilemez olması durumunda ilgili işlemler gerçekleştirilemez.
+
+20. Genel Değerlendirme
 
 Gerçekleştirilen testler sonucunda departman bazlı doküman yetkilendirmesinin hem doküman listeleme hem de pgvector tabanlı RAG araması sırasında doğru uygulandığı görülmüştür. Yetkisiz kullanıcıların doküman içeriğine doğrudan veya AI aracılığıyla erişemediği doğrulanmıştır.
 
