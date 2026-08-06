@@ -1,3 +1,5 @@
+# Teknik Kavramlar Sözlüğü
+
 RAG (Retrieval-Augmented Generation): Cevap vermeden önce ilgili dokümanları bulup bunları kullanarak cevap üreten yapay zekâ yöntemidir.
 
 Chunk: Büyük bir dokümanın yapay zekânın işleyebilmesi için bölündüğü küçük metin parçalarıdır.
@@ -36,7 +38,7 @@ Authentication (Kimlik Doğrulama): Kullanıcının kim olduğunu doğrulama iş
 
 Authorization (Yetkilendirme): Doğrulanan kullanıcının hangi işlemleri yapabileceğini belirleme işlemidir.
 
-Token: Kimlik doğrulama veya yapay zekâ işlemlerinde kullanılan dijital veri birimidir.
+JWT Token: Kimlik doğrulama veya yapay zekâ işlemlerinde kullanılan dijital veri birimidir.
 
 Prompt: Yapay zekâya verilen komut veya talimattır.
 
