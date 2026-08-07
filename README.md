@@ -367,30 +367,67 @@ Hukuk, Ar-Ge, Satın Alma, Muhasebe, İnsan Kaynakları ve Bilgi İşlem departm
 
 ## Ekran Görüntüleri
 
-Ekran görüntüleri `docs/images/` klasörüne eklendikten sonra aşağıdaki alanlarda görüntülenecektir.
+### Kimlik Doğrulama
 
-### Giriş ve Dashboard
+#### Giriş Ekranı
+![Giriş Ekranı](docs/images/login.png)
 
-![Giriş ekranı](docs/images/giris.png)
+#### Kayıt Olma
+![Kayıt Olma](docs/images/register.png)
 
+---
+
+### Dashboard
+
+#### Kullanıcı Dashboard
 ![Dashboard](docs/images/dashboard.png)
+
+---
+
+### AI Sohbet
+
+#### Yetki Filtreli RAG Sohbeti
+![AI Sohbet](docs/images/ai-chat.png)
+
+---
 
 ### Doküman Yönetimi
 
-![Doküman listesi](docs/images/dokuman-listesi.png)
+#### Doküman Listesi
+![Dokümanlar](docs/images/documents.png)
 
-![Doküman yükleme](docs/images/dokuman-yukleme.png)
+#### Doküman Detay Sayfası
+![Doküman Detay](docs/images/document-detail.png)
 
-### Yetki Filtreli AI Sohbet
+---
 
-![AI sohbet ve kaynak kartları](docs/images/ai-sohbet.png)
+### Doküman Yükleme
+
+#### Yeni Doküman Yükleme
+![Doküman Yükleme](docs/images/upload-1.png)
+
+#### Departman Yetkilendirme ve Yükleme
+![Doküman Yükleme 2](docs/images/upload-2.png)
+
+---
+
+### Profil
+
+#### Kullanıcı Profili
+![Profil](docs/images/profile.png)
+
+---
+
+### Yönetici Paneli
+
+#### Departman Yönetimi
+![Departman Yönetimi](docs/images/departments.png)
 
 ## Bilinen Eksikler
 
 - OpenAI API kullanımı internet bağlantısına ve hesabın API kotasına bağlıdır.
 - DOCX ve XLSX dosyaları tarayıcı içinde önizlenmek yerine indirilir.
 - Doküman işleme şu an aynı istek akışında tamamlanmaktadır; yoğun kullanım için görev kuyruğu eklenebilir.
-- Otomatik test kapsamı kritik akışları doğrulasa da tüm frontend etkileşimlerini kapsayan uçtan uca testler bulunmamaktadır.
 - Arşivlenmiş eski seed dokümanlarına ait bazı embedding alanları boştur; aktif dokümanların embeddingleri eksiksizdir.
 
 ## Proje Çıktıları
